@@ -1,0 +1,19 @@
+hwa (command) [args]
+
+ deploy:
+  Registers and launches an AppxManifest or URL. I.e.:
+   hwa deploy http://dev.windows.com
+   hwa deploy path-to-AppxManifest.xml
+
+ restart:
+  Starts or restarts the previous Appx deployed using this tool.
+ 
+ 
+ Remote Commands
+ The following commands are only usable when using this tool to connect to an HWA-Server.
+ 
+ clearsession:
+  Clears the session file, causing the next deploy to re-provision a server.
+ 
+ exit:
+  Disconnects the provisioned HWA-Server.

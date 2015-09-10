@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+  <Identity Name="122f1d07-66a9-427c-9fb4-80fa75b5d81a" Version="1.0.0.0" Publisher="CN=Demo"/>
+  <mp:PhoneIdentity PhoneProductId="122f1d07-66a9-427c-9fb4-80fa75b5d81a" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <Properties>
+    <DisplayName>TestApp</DisplayName>
+    <PublisherDisplayName>Test User</PublisherDisplayName>
+    <Logo>img\storelogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10069.0"/>
+  </Dependencies>
+  <Resources>
+    <Resource Language="en-us"/>
+  </Resources>
+  <Applications>
+    <Application Id="App" StartPage="{startpage}">
+
+      <uap:ApplicationContentUriRules>
+        <uap:Rule Type="include" Match="http://*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="http://*.*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="http://*.*.*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="http://*.*.*.*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="https://*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="https://*.*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="https://*.*.*.*" WindowsRuntimeAccess="all"/>
+        <uap:Rule Type="include" Match="https://*.*.*.*.*" WindowsRuntimeAccess="all"/>
+      </uap:ApplicationContentUriRules>
+
+      <uap:VisualElements DisplayName="TestApp" Description="TestApp" BackgroundColor="#474843" Square150x150Logo="img\Logo.png" Square44x44Logo="img\SmallLogo.png">
+        <uap:SplashScreen Image="img\splashscreen.png"/>
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient"/>
+  </Capabilities>
+</Package>
