@@ -10,15 +10,15 @@ var debugHost = "localhost";
 //var debugHost = "10.137.229.56";
 
 var PORT = 6767;
-var MAX_RETRIES = 5;
 var PROTOCOL_VERSION = 1;
 
-var sessionFilePath = p.join(os.tmpdir(), "hwa.session");
-
 module ProxyAdapter {
+    export var _sessionFilePath = p.join(os.tmpdir(), "hwa.session");
+    export var _numRetries = 5;
+
     export function clearSession() {
-        if (fs.existsSync(sessionFilePath)) {
-            fs.unlink(sessionFilePath);
+        if (fs.existsSync(_sessionFilePath)) {
+            fs.unlinkSync(_sessionFilePath);
         }
     }
 
@@ -33,9 +33,20 @@ module ProxyAdapter {
 
     export function registerAndLaunchAppxManifest(path: string) {
         // Compress the entire folder where the AppxManifest file is and send it to the VM.
+        rpc("deployAppxManifest", ProxyAdapter._compressPath(p.dirname(p.resolve(path))));
+    }
+
+    export function _launchRdp(address: string) {
+        var rdConfig = fs.readFileSync("./templates/rdConfig.rdp", "utf-8");
+        rdConfig = rdConfig.replace("{address}", address);
+        fs.writeFileSync("./bin/rdConfig.rdp", rdConfig, "utf-8");
+        cp.execSync("start " + "./bin/rdConfig.rdp");
+    }
+
+    export function _compressPath(path: string) {
         var zip = new admzip();
-        zip.addLocalFolder(p.dirname(p.resolve(path)));
-        rpc("deployAppxManifest", zip.toBuffer());
+        zip.addLocalFolder(path);
+        return zip.toBuffer();
     }
 }
 var typeCheck: HWAProxyAdapter = ProxyAdapter;
@@ -50,14 +61,14 @@ function establishConnection(sessionOnly: boolean, callback: (socket: net.Socket
             error(e);
         });
         socket.connect(6767, address, () => {
-            socket.removeAllListeners("error");
+        socket.removeAllListeners("error");
             success(socket);
         });
     }
 
-    if (fs.existsSync(sessionFilePath)) {
+    if (fs.existsSync(ProxyAdapter._sessionFilePath)) {
         // Found session file, try reconnecting
-        var sessionFile = fs.readFileSync(sessionFilePath, "utf-8");
+        var sessionFile = fs.readFileSync(ProxyAdapter._sessionFilePath, "utf-8");
         var address = sessionFile;
 
         doConnect(address,
@@ -77,16 +88,13 @@ function establishConnection(sessionOnly: boolean, callback: (socket: net.Socket
         var address = debugHost;
 
         // Establish Remote Desktop
-        var rdConfig = fs.readFileSync("./templates/rdConfig.rdp", "utf-8");
-        rdConfig = rdConfig.replace("{address}", address);
-        fs.writeFileSync("./bin/rdConfig.rdp", rdConfig, "utf-8");
-        cp.execSync("start " + "./bin/rdConfig.rdp");
+        ProxyAdapter._launchRdp(address);
 
         // Connect to remote socket
-        var retriesLeft = MAX_RETRIES;
+        var retriesLeft = ProxyAdapter._numRetries;
         var successHandler = function successHandler(socket: net.Socket) {
             // Connection successful, save to session file
-            fs.writeFileSync(sessionFilePath, address, "utf-8");
+            fs.writeFileSync(ProxyAdapter._sessionFilePath, address, "utf-8");
             callback(socket);
         };
         var errorHandler = function errorHandler(e: string) {
@@ -125,7 +133,6 @@ function rpc(command: string, data?: Buffer, sessionOnly = false) {
             socket.destroy();
         });
         socket.once("error", (e: any) => {
-            console.log(e);
             socket.destroy();
         });
         socket.write(payloadBuffer);

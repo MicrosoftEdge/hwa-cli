@@ -23,10 +23,13 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="..\..\src\adapter.ts">
-      <Link>adapter.ts</Link>
+      <Link>src\adapter.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\src\cli.ts">
-      <Link>cli.ts</Link>
+      <Link>src\cli.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\tests\adapterTests.ts">
+      <Link>tests\adapterTests.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="..\typings\adapter.d.ts">
       <Link>typings\adapter.d.ts</Link>
@@ -34,6 +37,11 @@
     <TypeScriptCompile Include="..\typings\node.d.ts">
       <Link>typings\node.d.ts</Link>
     </TypeScriptCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\main.js">
+      <Link>main.js</Link>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
