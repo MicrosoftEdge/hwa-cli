@@ -23,12 +23,12 @@ module ProxyAdapter {
     }
 
     export function exit() {
-        ProxyAdapter.clearSession();
         rpc("exit", null, true);
+        ProxyAdapter.clearSession();
     }
 
     export function launchAppx() {
-        rpc("launchAppx");
+        rpc("launchAppx", null, true);
     }
 
     export function registerAndLaunchAppxManifest(path: string) {
@@ -57,12 +57,16 @@ function establishConnection(sessionOnly: boolean, callback: (socket: net.Socket
     function doConnect(address: string, success: (socket: net.Socket) => any, error: (e: string) => any) {
         var socket = new net.Socket();
         socket.once("error", (e: string) => {
+            // Connection timed out or server forcefully disconnected
             socket.destroy();
             error(e);
         });
         socket.connect(6767, address, () => {
-        socket.removeAllListeners("error");
-            success(socket);
+            // Successfully connected, waiting on first ACK from server
+            socket.once("data", () => {
+                socket.removeAllListeners("error");
+                success(socket);
+            });
         });
     }
 

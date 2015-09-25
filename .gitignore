@@ -3,5 +3,6 @@
 /projects/vs2015/bin
 /projects/vs2015/obj
 /projects/vs2015/.vs
+/publish
 
 *.csproj.user
