@@ -1,5 +1,5 @@
 {
-    "version": "0.0.1",
+    "version": "0.0.2",
     "name": "hwa-cli",
     "title": "HWA Deployment Command-Line interface",
     "description": "Command-Line interface for deploying HWAs locally and remotely via HWA-Server.",
@@ -24,7 +24,11 @@
     ],
     "dependencies": {
         "adm-zip": "^0.4.7",
+        "archiver": "^0.16.0",
+        "guid": "^0.0.12",
         "ncp": "^2.0.0",
+        "promise": "^7.0.4",
+        "request": "^2.65.0",
         "rimraf": "^2.4.3",
         "validator": "^4.0.5"
     },
