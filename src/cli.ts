@@ -41,9 +41,9 @@ export function main(argv: string[], argc: number) {
         case "crxtoappx":
             if (fs.existsSync(args[0])) {
                 var filenameWithoutExt = p.parse(args[0]).name;
-                var dest = args[1] || p.join(p.dirname(args[0]), filenameWithoutExt);
-                crxConverter.convert(args[0], dest, rootTempPath).then(() => {
-                    cloudAppx.invoke(filenameWithoutExt, dest, p.join(dest, filenameWithoutExt + ".appx"), (e: Error) => {
+                var outputPath = p.join(rootTempPath, "extractedCrx");
+                crxConverter.convert(args[0], outputPath).then(() => {
+                    cloudAppx.invoke(filenameWithoutExt, outputPath, p.join(p.dirname(args[0]), filenameWithoutExt + ".appx"), (e: Error) => {
                         e && console.log(e);
                     });
                 });

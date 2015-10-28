@@ -1,3 +1,5 @@
+declare var Promise: PromiseConstructorLike;
+
 import fs = require("fs");
 import readline = require("readline");
 import os = require("os");
@@ -7,7 +9,6 @@ import webConverter = require("./webConverter");
 
 var admzip = require("adm-zip");
 var guid = require("guid");
-var promise = require("promise");
 var rimraf = require("rimraf");
 
 /*
@@ -24,17 +25,13 @@ var rimraf = require("rimraf");
 var offsetPublicKeyLength = 8;
 var offsetSignatureLength = 12;
 
-export function convert(src: string, dest: string, tmpDir?: string): PromiseLike<void> {
-    return new promise((c: Function) => {
+export function convert(src: string, dest: string) {
+    return new Promise<void>(c => {
         // Setup tmp
-        tmpDir = tmpDir || p.join(os.tmpdir(), "crxConverter");
-        rimraf.sync(tmpDir);
-        fs.mkdirSync(tmpDir);
+        rimraf.sync(dest);
+        fs.mkdirSync(dest);
 
         // Extract crx
-        if (!fs.existsSync(dest)) {
-            fs.mkdirSync(dest);
-        }
         extractCrx(src, dest);
 
         // Convert manifest
@@ -47,7 +44,7 @@ export function convert(src: string, dest: string, tmpDir?: string): PromiseLike
                     rl.close();
                     console.log();
                     console.log("Converting manifest to AppxManifest");
-                    var xmlManifest = webConverter.w3CToAppxManifest(w3cManifest, fs.readFileSync("./templates/w3c-AppxManifest-template.xml", "utf8"),
+                    var xmlManifest = webConverter.w3CToAppxManifest(w3cManifest, fs.readFileSync(p.join(__dirname, "../templates/w3c-AppxManifest-template.xml"), "utf8"),
                         {
                             identityName: identityName,
                             publisherDisplayName: publisherDisplayName,
@@ -76,6 +73,10 @@ export function convert(src: string, dest: string, tmpDir?: string): PromiseLike
 }
 
 export function extractCrx(src: string, dest: string) {
+    if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest);
+    }
+
     var zipPath = p.join(dest, guid.raw() + ".zip");
 
     // Read crx file
@@ -92,4 +93,3 @@ export function extractCrx(src: string, dest: string) {
     new admzip(zipPath).extractAllTo(dest);
     fs.unlinkSync(zipPath);
 }
-
