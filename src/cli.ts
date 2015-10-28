@@ -3,7 +3,13 @@ import fs = require("fs");
 import net = require("net");
 import os = require("os");
 import p = require("path");
+import readline = require("readline");
 
+import cloudAppx = require("./cloudAppx");
+import crxConverter = require("./crxConverter");
+import webConverter = require("./webConverter");
+
+var archiver = require("archiver");
 var ncp = require("ncp");
 var rimraf = require("rimraf");
 var validator = require("validator");
@@ -32,6 +38,20 @@ export function main(argv: string[], argc: number) {
     var handled = true;
 
     switch (cmd.toLowerCase()) {
+        case "crxtoappx":
+            if (fs.existsSync(args[0])) {
+                var filenameWithoutExt = p.parse(args[0]).name;
+                var dest = args[1] || p.join(p.dirname(args[0]), filenameWithoutExt);
+                crxConverter.convert(args[0], dest, rootTempPath).then(() => {
+                    cloudAppx.invoke(filenameWithoutExt, dest, p.join(dest, filenameWithoutExt + ".appx"), (e: Error) => {
+                        e && console.log(e);
+                    });
+                });
+            } else {
+                handled = false;
+            }
+            break;
+
         case "deploy":
             if (fs.existsSync(args[0])) {
                 if (p.basename(args[0]).toLocaleLowerCase() === "appxmanifest.xml") {

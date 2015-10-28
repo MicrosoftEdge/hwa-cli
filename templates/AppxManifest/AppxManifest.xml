@@ -14,7 +14,7 @@
     <Resource Language="en-us"/>
   </Resources>
   <Applications>
-    <Application Id="App" StartPage="{startpage}">
+    <Application Id="App" StartPage="http://www.google.com">
 
       <uap:ApplicationContentUriRules>
         <uap:Rule Type="include" Match="http://*.*" WindowsRuntimeAccess="all"/>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build" IgnorableNamespaces="uap mp build">
+  <Identity Name="{IdentityName}" Version="{Version}" Publisher="{PublisherIdentity}"/>
+  <mp:PhoneIdentity PhoneProductId="{PhoneProductId}" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <build:Metadata>
+    {MetadataItems}
+  </build:Metadata>
+  <Properties>
+    <DisplayName>{AppDisplayName}</DisplayName>
+    <PublisherDisplayName>{PublisherDisplayName}</PublisherDisplayName>
+    <Logo>{LogoStore}</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10069.0"/>
+  </Dependencies>
+  <Resources>
+    <Resource Language="{Locale}"/>
+  </Resources>
+  <Applications>
+    <Application Id="{ApplicationId}" StartPage="{StartPage}">
+      <uap:ApplicationContentUriRules>
+        {ApplicationContentUriRules}
+      </uap:ApplicationContentUriRules>
+
+      <uap:VisualElements DisplayName="{AppDisplayName}" Description="{AppDescription}" BackgroundColor="{ThemeColor}" Square150x150Logo="{LogoLarge}" Square44x44Logo="{LogoSmall}">
+        <uap:SplashScreen Image="{SplashScreen}"/>
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="{RotationPreference}"/>
+        </uap:InitialRotationPreference>
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient"/>
+    <Capability Name="privateNetworkClientServer"/>
+  </Capabilities>
+</Package>
