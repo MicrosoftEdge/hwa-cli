@@ -40,6 +40,7 @@ export interface IChromeOSManifest {
     // Required properties
     app: {
         launch: {
+            local_path: string;
             web_url: string;
         };
         urls?: string[];
@@ -49,7 +50,8 @@ export interface IChromeOSManifest {
     version: string;
 
     // Optional (non-exhaustive)
-    icons: { [size: string]: string; };
+    default_locale?: string;
+    icons?: { [size: string]: string; };
 
     // Since the ChromeOSManifest is mostly compatible with the W3CManifest,
     // all W3CManifest properties are optionally defined as well, except 'icons'
@@ -65,7 +67,13 @@ export interface IChromeOSManifest {
     background_color?: string;
 }
 
-export function chromeToW3CManifest(chromeManifest: IChromeOSManifest) {
+export function chromeToW3CManifest(chromeManifest: IChromeOSManifest, resolveVariable?: (locale: string, varName: string) => string) {
+    // Create manifest object
+    if (!chromeManifest.app || !chromeManifest.app.launch || (!chromeManifest.app.launch.web_url && !chromeManifest.app.launch.local_path)) {
+        throw "Manifest error: No start page found";
+    }
+    var startUrl = chromeManifest.app.launch.web_url || ("ms-appx-web:///" + chromeManifest.app.launch.local_path);
+
     var w3cManifest: IW3CManifest = {
         lang: chromeManifest.lang || "en-us",
         name: chromeManifest.name,
@@ -73,12 +81,22 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest) {
         icons: [],
         splash_screens: chromeManifest.splash_screens || [],
         scope: chromeManifest.scope || "",
-        start_url: chromeManifest.app.launch.web_url,
+        start_url: startUrl,
         display: chromeManifest.display || "",
         orientation: chromeManifest.orientation || "portrait",
         theme_color: chromeManifest.theme_color || "aliceBlue",
         background_color: chromeManifest.background_color || "gray"
     };
+
+    // Resolve variables
+    if (resolveVariable && chromeManifest.default_locale) {
+        for (var key in w3cManifest) {
+            var value = (<any>w3cManifest)[key];
+            if (typeof value === "string" && value.toLowerCase().indexOf("__msg_") === 0) {
+                (<any>w3cManifest)[key] = resolveVariable(chromeManifest.default_locale, value.substring(6, value.lastIndexOf("__"))) || value;
+            }
+        }
+    }
 
     // Extract icons
     for (var size in chromeManifest.icons) {
@@ -89,24 +107,29 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest) {
     }
     
     // Extract app urls
-    if (chromeManifest.app.urls) {
-        var extractedUrls: { apiAccess: string; url: string; }[] = [];
-        var urls = chromeManifest.app.urls;
-        for (var i = 0; i < urls.length; i++) {
-            var url = urls[i];
-            if (url.indexOf("*://") === 0) {
-                // Url starts with '*://', expand this to both 'http://' and 'https://'
-                extractedUrls.push({ url: "http" + url.substr(1), apiAccess: "none" });
-                extractedUrls.push({ url: "https" + url.substr(1), apiAccess: "none" });
-            } else {
-                extractedUrls.push({ url: url, apiAccess: "none" });
-            }
-        }
-        removeDupesInPlace(extractedUrls, function (a, b) {
-            return a.url === b.url;
-        });
-        w3cManifest.mjs_access_whitelist = (w3cManifest.mjs_access_whitelist || []).concat(extractedUrls);
+    var extractedUrls: { apiAccess: string; url: string; }[] = [];
+    var urls = [startUrl];
+    if (chromeManifest.app.urls && chromeManifest.app.urls.length) {
+        urls = urls.concat(chromeManifest.app.urls);
     }
+    for (var i = 0; i < urls.length; i++) {
+        var url = urls[i];
+        if (url.indexOf("*://") === 0) {
+            // Url starts with '*://', expand this to both 'http://' and 'https://'
+            extractedUrls.push({ url: "http" + url.substr(1), apiAccess: "none" });
+            extractedUrls.push({ url: "https" + url.substr(1), apiAccess: "none" });
+        } else if (url.indexOf("http://") === 0) {
+            // Url starts with 'http://', allow both 'http' and 'https'
+            extractedUrls.push({ url: "http" + url.substr(4), apiAccess: "none" });
+            extractedUrls.push({ url: "https" + url.substr(4), apiAccess: "none" });
+        } else {
+            extractedUrls.push({ url: url, apiAccess: "none" });
+        }
+    }
+    removeDupesInPlace(extractedUrls, function (a, b) {
+        return a.url === b.url;
+    });
+    w3cManifest.mjs_access_whitelist = (w3cManifest.mjs_access_whitelist || []).concat(extractedUrls);
     
     // Copy any remaining string properties from the Chrome manifest
     for (var prop in chromeManifest) {
@@ -231,7 +254,7 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
                 if (accessUrl === baseUrlPattern) {
                     baseApiAccess = apiAccess;
                 } else {
-                    indentationChars = '\r\n\t\t\t\t';
+                    indentationChars = '\r\n        ';
                     applicationContentUriRules += indentationChars + '<uap:Rule Type="include" WindowsRuntimeAccess="' + apiAccess + '" Match="' + accessUrl + '" />';
                     console.log("Access Rule added: [" + apiAccess + "] - " + accessUrl);
                 }

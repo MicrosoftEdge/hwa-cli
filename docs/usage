@@ -1,8 +1,8 @@
 hwa (command) [args]
 
- crxtoappx:
-  Converts a ChromeOS .crx package to a Windows Appx package.
-   hwa crxtoappx ./myapp/manifest.json
+ convert:
+  Converts a supported package to a Windows Appx package. I.e.:
+   hwa crxtoappx ./myapp.crx
 
  deploy:
   Registers and launches an AppxManifest or URL. I.e.:

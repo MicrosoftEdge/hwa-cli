@@ -38,14 +38,16 @@ export function main(argv: string[], argc: number) {
     var handled = true;
 
     switch (cmd.toLowerCase()) {
-        case "crxtoappx":
+        case "convert":
             if (fs.existsSync(args[0])) {
                 var filenameWithoutExt = p.parse(args[0]).name;
-                var outputPath = p.join(rootTempPath, "extractedCrx");
+                var outputPath = p.join(rootTempPath, "convert");
                 crxConverter.convert(args[0], outputPath).then(() => {
                     cloudAppx.invoke(filenameWithoutExt, outputPath, p.join(p.dirname(args[0]), filenameWithoutExt + ".appx"), (e: Error) => {
                         e && console.log(e);
                     });
+                }, (e: any) => {
+                    e && console.log(e);
                 });
             } else {
                 handled = false;

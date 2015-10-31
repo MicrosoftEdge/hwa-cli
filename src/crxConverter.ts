@@ -36,11 +36,28 @@ export function convert(src: string, dest: string) {
 
         // Convert manifest
         var chromeOSManifest = <webConverter.IChromeOSManifest>JSON.parse(fs.readFileSync(p.join(dest, "manifest.json"), "utf8").toString());
-        var w3cManifest = webConverter.chromeToW3CManifest(chromeOSManifest);
+        var w3cManifest = webConverter.chromeToW3CManifest(chromeOSManifest, (locale, varName) => {
+            // Note: variable name is not case sensitive
+            varName = varName.toLowerCase();
+            var locResPath = p.join(dest, "_locales", locale, "messages.json");
+            if (fs.existsSync(locResPath)) {
+                var msgs = JSON.parse(fs.readFileSync(locResPath, "utf8"));
+                for (var key in msgs) {
+                    if (key.toLowerCase() === varName) {
+                        return msgs[key].message;
+                    } 
+                }
+            }
+            return null;
+        });
+
         var rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         rl.question("Identity Name: ", (identityName: string) => {
+            //identityName = identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             rl.question("Publisher Identity: ", (publisherIdentity: string) => {
+                //publisherIdentity = publisherIdentity || "CN=AUTHOR_NAME";
                 rl.question("Publisher Display Name: ", (publisherDisplayName: string) => {
+                    //publisherDisplayName = publisherDisplayName || publisherIdentity.substr(3);
                     rl.close();
                     console.log();
                     console.log("Converting manifest to AppxManifest");
@@ -81,6 +98,13 @@ export function extractCrx(src: string, dest: string) {
 
     // Read crx file
     var crxFile = fs.readFileSync(src);
+
+    // Make sure that it is a crx archive by searching for the signature "67 114 50 52"
+    if (crxFile[0] !== 67 || crxFile[1] !== 114 || crxFile[2] !== 50 || crxFile[3] !== 52) {
+        // src is not a crx archive, just unzip it directly
+        new admzip(src).extractAllTo(dest);
+        return;
+    }
 
     // Write zip contents
     var lengthPK = crxFile.readUIntLE(offsetPublicKeyLength, 4);

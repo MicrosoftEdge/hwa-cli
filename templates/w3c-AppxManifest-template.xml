@@ -19,9 +19,14 @@
   <Applications>
     <Application Id="{ApplicationId}" StartPage="{StartPage}">
       <uap:ApplicationContentUriRules>
+        <uap:Rule Type="include" WindowsRuntimeAccess="none" Match="https://*.facebook.com/" />
+        <uap:Rule Type="include" WindowsRuntimeAccess="none" Match="https://*.google.com/" />
+        <uap:Rule Type="include" WindowsRuntimeAccess="none" Match="https://*.live.com/" />
+        <uap:Rule Type="include" WindowsRuntimeAccess="none" Match="https://*.youtube.com/" />
+        <uap:Rule Type="include" WindowsRuntimeAccess="none" Match="https://*.typingclub.com/" />
+        <uap:Rule Type="include" WindowsRuntimeAccess="none" Match="http://*.typingclub.com/" />
         {ApplicationContentUriRules}
       </uap:ApplicationContentUriRules>
-
       <uap:VisualElements DisplayName="{AppDisplayName}" Description="{AppDescription}" BackgroundColor="{ThemeColor}" Square150x150Logo="{LogoLarge}" Square44x44Logo="{LogoSmall}">
         <uap:SplashScreen Image="{SplashScreen}"/>
         <uap:InitialRotationPreference>

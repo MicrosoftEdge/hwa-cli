@@ -1,5 +1,5 @@
 {
-    "version": "0.0.4",
+    "version": "0.0.6",
     "name": "hwa-cli",
     "title": "HWA Deployment Command-Line interface",
     "description": "Command-Line interface for deploying HWAs locally and remotely via HWA-Server.",
