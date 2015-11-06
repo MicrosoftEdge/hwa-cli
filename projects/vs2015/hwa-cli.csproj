@@ -28,6 +28,15 @@
     <TypeScriptCompile Include="..\..\src\cli.ts">
       <Link>src\cli.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\src\cloudAppx.ts">
+      <Link>src\cloudAppx.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\src\crxConverter.ts">
+      <Link>src\crxConverter.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\src\webConverter.ts">
+      <Link>src\webConverter.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\tests\adapterTests.ts">
       <Link>tests\adapterTests.ts</Link>
     </TypeScriptCompile>
@@ -41,6 +50,33 @@
   <ItemGroup>
     <Content Include="..\..\main.js">
       <Link>main.js</Link>
+    </Content>
+    <Content Include="..\..\templates\AppxManifest\AppxManifest.xml">
+      <Link>templates\AppxManifest\AppxManifest.xml</Link>
+    </Content>
+    <Content Include="..\..\templates\w3c-AppxManifest-template.xml">
+      <Link>templates\w3c-AppxManifest-template.xml</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\templates\rdConfig.rdp">
+      <Link>templates\rdConfig.rdp</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\docs\connectionError">
+      <Link>docs\connectionError</Link>
+    </Content>
+    <Content Include="..\..\docs\fileNotSupported">
+      <Link>docs\fileNotSupported</Link>
+    </Content>
+    <Content Include="..\..\docs\usage">
+      <Link>docs\usage</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\package.json">
+      <Link>package.json</Link>
     </Content>
   </ItemGroup>
   <PropertyGroup>

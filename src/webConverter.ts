@@ -97,7 +97,6 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest, resolveVa
             }
         }
     }
-
     // Extract icons
     for (var size in chromeManifest.icons) {
         w3cManifest.icons.push({
@@ -192,13 +191,13 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
         .replace(/{Version}/g, "1.0.0.0")
         .replace(/{PublisherIdentity}/g, appIdentity.publisherIdentity)
         .replace(/{PhoneProductId}/g, guid)
-        .replace(/{AppDisplayName}/g, w3cManifest.short_name)
+        .replace(/{AppDisplayName}/g, encodeXML(w3cManifest.short_name))
         .replace(/{PublisherDisplayName}/g, appIdentity.publisherDisplayName)
         .replace(/{LogoStore}/g, logoStore.src)
         .replace(/{Locale}/g, w3cManifest.lang)
         .replace(/{ApplicationId}/g, sanitizeName(w3cManifest.short_name))
         .replace(/{StartPage}/g, encodeXML(w3cManifest.start_url))
-        .replace(/{AppDescription}/g, (<any>w3cManifest)["description"] || w3cManifest.name)
+        .replace(/{AppDescription}/g, encodeXML((<any>w3cManifest)["description"] || w3cManifest.name))
         .replace(/{ThemeColor}/g, w3cManifest.theme_color)
         .replace(/{LogoLarge}/g, logoLarge.src)
         .replace(/{LogoSmall}/g, logoSmall.src)

@@ -35,17 +35,19 @@ export function convert(src: string, dest: string) {
         extractCrx(src, dest);
 
         // Convert manifest
-        var chromeOSManifest = <webConverter.IChromeOSManifest>JSON.parse(fs.readFileSync(p.join(dest, "manifest.json"), "utf8").toString());
+        var chromeOSManifest = <webConverter.IChromeOSManifest>JSON.parse(sanitizeJSONString(fs.readFileSync(p.join(dest, "manifest.json"), "utf8")));
+
         var w3cManifest = webConverter.chromeToW3CManifest(chromeOSManifest, (locale, varName) => {
             // Note: variable name is not case sensitive
             varName = varName.toLowerCase();
             var locResPath = p.join(dest, "_locales", locale, "messages.json");
             if (fs.existsSync(locResPath)) {
-                var msgs = JSON.parse(fs.readFileSync(locResPath, "utf8"));
+                // We've encountered a bunch of malformed JSON so we need to trim them, then replace all newline characters with a space
+                var msgs = JSON.parse(sanitizeJSONString(fs.readFileSync(locResPath, "utf8")));
                 for (var key in msgs) {
                     if (key.toLowerCase() === varName) {
                         return msgs[key].message;
-                    } 
+                    }
                 }
             }
             return null;
@@ -93,7 +95,6 @@ export function extractCrx(src: string, dest: string) {
     if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest);
     }
-
     var zipPath = p.join(dest, guid.raw() + ".zip");
 
     // Read crx file
@@ -116,4 +117,8 @@ export function extractCrx(src: string, dest: string) {
     // Extract zip and cleanup
     new admzip(zipPath).extractAllTo(dest);
     fs.unlinkSync(zipPath);
+}
+
+function sanitizeJSONString(str: string) {
+    return str.trim().replace(/\r/g, "").replace(/\n/g, "");
 }
