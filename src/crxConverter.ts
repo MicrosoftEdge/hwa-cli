@@ -149,16 +149,7 @@ export function convert(src: string, dest: string) {
                             { name: "GeneratedFrom", value: "HWA-CLI" },
                             { name: "GenerationDate", value: new Date().toUTCString() },
                             { name: "ToolVersion", value: "0.1.0" }
-                        ],
-                        assetInfos => {
-                            assetInfos.forEach(info => {
-                                var newPath = p.join(p.dirname(info.src), p.parse(info.src).name + `_scaled_${info.requiredSize.w}x${info.requiredSize.h}.png`);
-                                var outputPath = p.join(dest, p.dirname(info.src), newPath)
-                                cp.execFileSync(phantomjs.path, [p.join(__dirname, "/phantom-image.js"), p.join(dest, info.src), "" + info.requiredSize.w, "" + info.requiredSize.h, outputPath]/*, { stdio: [process.stdin, process.stdout, process.stderr] }*/);
-                                info.src = newPath;
-                                info.nativeSize = info.requiredSize;
-                            });
-                        });
+                        ]);
                     console.log();
         
                     // Write the AppxManifest
