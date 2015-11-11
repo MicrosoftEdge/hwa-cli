@@ -54,9 +54,9 @@ YouTube videos should still work, as they now [default to HTML5 &lt;video&gt;](h
 The Chrome web store already [requires](https://developer.chrome.com/webstore/images) a 128x128 app icon image in your app package. For Windows 10 apps, you must supply 44x44, 50x50, 150x150, and 600x350 app icon images, at the very minimum. The conversion tool will automatically create these images for you, based on the 128x128 image. For a richer, more polished app experience, we highly recommend creating your own image files. Here are some [guidelines](https://msdn.microsoft.com/en-us/library/windows/apps/mt412102.aspx) for tile and icon assets.
 
 ### Capabilities
-There are four categories of capabilities: [general-use](https://msdn.microsoft.com/en-us/library/windows/apps/Mt270968.aspx#general-use_capabilities), [device](https://msdn.microsoft.com/en-us/library/windows/apps/Mt270968.aspx#device_capabilities), [special-use and restricted](https://msdn.microsoft.com/en-us/library/windows/apps/Mt270968.aspx#special_and_restricted_capabilities). Popular examples are location, microphone, and webcam. You will need to explicitly declare these capabilities in your package manifest for your app to use them.
+App capabilities must be [declared](https://msdn.microsoft.com/en-us/library/windows/apps/Mt270968.aspx) in your package manifest in order to access certain APIs and resources. The conversion tool will automatically enable three popular device capabilities for you: location, microphone, and webcam. With the former, the system will still prompt the user for permission before granting access.
 
-Note: Users are notified of all the capabilities that an app declares. It would be prudent to not declare any capabilities that your app does not need.
+Note: Users are notified of all the capabilities that an app declares. We would recommend removing any capabilities that your app does not need.
 
 ### File downloads
 Traditional file downloads, like you see in the browser, are not currently supported.
