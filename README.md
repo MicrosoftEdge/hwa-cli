@@ -2,6 +2,7 @@
 
 ## Convert your Chrome app to a Windows hosted app
 1. Install [NodeJS and npm](https://nodejs.org/en/)
+1. Open a command prompt window to the directory of your choice
 1. Install hwa cli: `npm i -g hwa-cli`
 1. Convert your [Chrome package](#supported-chrome-package-formats): `hwa convert path/to/chrome/app.crx` or `hwa convert path/to/chrome/app.zip`
 1. Fill out the [Windows Store prompts](#how-to-fill-out-the-windows-store-prompts)
