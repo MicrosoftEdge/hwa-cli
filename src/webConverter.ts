@@ -2,10 +2,10 @@ import url = require("url");
 
 // Constants
 var assetSizes = {
-    logoStore: 50,
-    logoSmall: 44,
-    logoLarge: 150,
-    splashScreen: 4096
+    logoStore: { w: 50, h: 50 },
+    logoSmall: { w: 44, h: 44 },
+    logoLarge: { w: 150, h: 150 },
+    splashScreen: { w: 620, h: 300 }
 };
 var validIconFormats = [
     'png',
@@ -148,43 +148,37 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
     }
 
     var guid = newGuid();
-    
-    // Find ideal assets
-    function matchBest(matchRecord: { sizeDelta: number; src: string; }, asset: { sizes: string; src: string; }, matchSize: number) {
-        var delta = +asset.sizes.split("x")[0] - matchSize;
-        if ((matchRecord.sizeDelta < 0 && delta > matchRecord.sizeDelta) || (matchRecord.sizeDelta > 0 && delta < matchRecord.sizeDelta)) {
-            // Update rules
-            // If the recorded delta is negative, then no image has been set yet, or a smaller-than-ideal image is currently recorded
-            //   Use the new image if the delta is greater (closer to 0) than before
-            // If the recorded delta is positive, then a larger-than-ideal is currently recorded
-            //   Use the new image if the delta is smaller (closer to 0) than before
-            matchRecord.sizeDelta = delta;
-            matchRecord.src = asset.src;
-        }
-    }
-    var logoStore = { sizeDelta: Number.NEGATIVE_INFINITY, src: "" };
-    var logoSmall = { sizeDelta: Number.NEGATIVE_INFINITY, src: "" };
-    var logoLarge = { sizeDelta: Number.NEGATIVE_INFINITY, src: "" };
-    var splashScreen = { sizeDelta: Number.NEGATIVE_INFINITY, src: "" };
-    var iconAsSplashScreen = !w3cManifest.splash_screens.length;
+
+    var logoStore: string,
+        logoSmall: string,
+        logoLarge: string,
+        splashScreen: string;
+
     for (var i = 0; i < w3cManifest.icons.length; i++) {
-        var iconData = w3cManifest.icons[i];
-        matchBest(logoStore, iconData, assetSizes.logoStore);
-        matchBest(logoSmall, iconData, assetSizes.logoSmall);
-        matchBest(logoLarge, iconData, assetSizes.logoLarge);
-        iconAsSplashScreen && matchBest(splashScreen, iconData, assetSizes.splashScreen);
-    }
-    if (!iconAsSplashScreen) {
-        for (var i = 0; i < w3cManifest.splash_screens.length; i++) {
-            matchBest(splashScreen, w3cManifest.splash_screens[i], assetSizes.splashScreen);
+        var icon = w3cManifest.icons[i];
+        var updated = false;
+        if (!logoStore && icon.sizes === `${assetSizes.logoStore.w}x${assetSizes.logoStore.h}`) {
+            logoStore = icon.src;
+        }
+        if (!logoSmall && icon.sizes === `${assetSizes.logoSmall.w}x${assetSizes.logoSmall.h}`) {
+            logoSmall = icon.src;
+        }
+        if (!logoLarge && icon.sizes === `${assetSizes.logoLarge.w}x${assetSizes.logoLarge.h}`) {
+            logoLarge = icon.src;
+        }
+        if (!splashScreen && icon.sizes === `${assetSizes.splashScreen.w}x${assetSizes.splashScreen.h}`) {
+            splashScreen = icon.src;
+        }
+        if (logoStore && logoSmall && logoLarge && splashScreen) {
+            break;
         }
     }
 
     console.log("Established Assets:");
-    console.log("  Store logo: " + (logoStore.sizeDelta + assetSizes.logoStore) + "px - " + logoStore.src);
-    console.log("  Small logo: " + (logoSmall.sizeDelta + assetSizes.logoSmall) + "px - " + logoSmall.src);
-    console.log("  Large logo: " + (logoLarge.sizeDelta + assetSizes.logoLarge) + "px - " + logoLarge.src);
-    console.log("  Splash screen: " + (splashScreen.sizeDelta + assetSizes.splashScreen) + "px - " + splashScreen.src);
+    console.log(`  Store logo: ${logoStore}`);
+    console.log(`  Small logo: ${logoSmall}`);
+    console.log(`  Large logo: ${logoLarge}`);
+    console.log(`  Splashscreen: ${splashScreen}`);
     
     // Update properties
     var appxManifest = appxManifestTemplate.replace(/{IdentityName}/g, appIdentity.identityName)
@@ -193,15 +187,15 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
         .replace(/{PhoneProductId}/g, guid)
         .replace(/{AppDisplayName}/g, encodeXML(w3cManifest.short_name))
         .replace(/{PublisherDisplayName}/g, appIdentity.publisherDisplayName)
-        .replace(/{LogoStore}/g, logoStore.src)
+        .replace(/{LogoStore}/g, logoStore)
         .replace(/{Locale}/g, w3cManifest.lang)
         .replace(/{ApplicationId}/g, sanitizeName(w3cManifest.short_name))
         .replace(/{StartPage}/g, encodeXML(w3cManifest.start_url))
         .replace(/{AppDescription}/g, encodeXML((<any>w3cManifest)["description"] || w3cManifest.name))
         .replace(/{ThemeColor}/g, w3cManifest.theme_color)
-        .replace(/{LogoLarge}/g, logoLarge.src)
-        .replace(/{LogoSmall}/g, logoSmall.src)
-        .replace(/{SplashScreen}/g, splashScreen.src)
+        .replace(/{LogoLarge}/g, logoLarge)
+        .replace(/{LogoSmall}/g, logoSmall)
+        .replace(/{SplashScreen}/g, splashScreen)
         .replace(/{RotationPreference}/g, w3cManifest.orientation);
 
     console.log("Start Page: " + w3cManifest.start_url);
