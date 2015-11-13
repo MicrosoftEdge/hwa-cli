@@ -8,7 +8,9 @@
 1. Fill out the [Windows Store prompts](#how-to-fill-out-the-windows-store-prompts)
 1. The generated `.appx` will appear in the same folder as your Chrome package.
 
-You are now ready to [upload](https://dev.windows.com) your Hosted Web App to the Windows Store. Be sure to [check out the guide below](#guide-for-migrating-your-hosted-web-app) for more information.
+You are now ready to [upload](https://dev.windows.com) your Hosted Web App to the Windows Store. Upload your AppX package by navigating to the "Packages" page in the Submissions section.
+
+Be sure to [check out the guide below](#guide-for-migrating-your-hosted-web-app) for more information.
 
 ### Supported Chrome package formats
 The  following package formats are supported: `.crx`, `.zip`.
