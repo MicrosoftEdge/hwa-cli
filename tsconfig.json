@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"module": "umd",
+		"target": "ES5",
+		"outDir": "bin/"
+	},
+	"files": [
+		"src/adapter.ts",
+		"src/cli.ts",
+		"src/cloudAppx.ts",
+		"src/crxConverter.ts",
+		"src/phantom-image.ts",
+		"src/webConverter.ts",
+		"tests/adapterTests.ts"
+	]
+}

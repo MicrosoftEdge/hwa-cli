@@ -34,6 +34,9 @@
     <TypeScriptCompile Include="..\..\src\crxConverter.ts">
       <Link>src\crxConverter.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\src\phantom-image.ts">
+      <Link>src\phantom-image.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\src\webConverter.ts">
       <Link>src\webConverter.ts</Link>
     </TypeScriptCompile>

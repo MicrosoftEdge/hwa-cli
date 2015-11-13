@@ -139,7 +139,7 @@ export function convert(src: string, dest: string) {
                     rl.close();
                     console.log();
                     console.log("Converting manifest to AppxManifest");
-                    var xmlManifest = webConverter.w3CToAppxManifest(w3cManifest, fs.readFileSync(p.join(__dirname, "../templates/w3c-AppxManifest-template.xml"), "utf8"),
+                    var xmlManifest = webConverter.w3CToAppxManifest(w3cManifest, fs.readFileSync(p.join(__dirname, "../../templates/w3c-AppxManifest-template.xml"), "utf8"),
                         {
                             identityName: identityName,
                             publisherDisplayName: publisherDisplayName,
@@ -197,7 +197,7 @@ export function extractCrx(src: string, dest: string) {
 
 function resizeImage(absSrcPath: string, targetWidth: number, targetHeight: number, newFilename: string) {
     var outputPath = p.join(p.dirname(absSrcPath), newFilename);
-    cp.execFileSync(phantomjs.path, [p.join(__dirname, "/phantom-image.js"), absSrcPath, "" + targetWidth, "" + targetHeight, outputPath]/*, { stdio: [process.stdin, process.stdout, process.stderr] }*/);
+    cp.execFileSync(phantomjs.path, [p.join(__dirname, "phantom-image.js"), absSrcPath, "" + targetWidth, "" + targetHeight, outputPath]/*, { stdio: [process.stdin, process.stdout, process.stderr] }*/);
 }
 
 function sanitizeJSONString(str: string) {

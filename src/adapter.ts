@@ -1,4 +1,6 @@
-﻿import cp = require("child_process");
+﻿/// <reference path="../projects/typings/node.d.ts" />
+/// <reference path="../projects/typings/adapter.d.ts" />
+import cp = require("child_process");
 import fs = require("fs");
 import net = require("net");
 import os = require("os");
