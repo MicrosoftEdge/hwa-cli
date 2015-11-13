@@ -10,7 +10,7 @@
 
 You are now ready to [upload](https://dev.windows.com) your Hosted Web App to the Windows Store. Upload your AppX package by navigating to the "Packages" page in the Submissions section.
 
-Be sure to [check out the guide below](#guide-for-migrating-your-hosted-web-app) for more information.
+Be sure to [check out the guide below](#guide-for-migrating-your-hosted-web-app) for more information on migrating your Hosted Web App.
 
 ### Supported Chrome package formats
 The  following package formats are supported: `.crx`, `.zip`.
