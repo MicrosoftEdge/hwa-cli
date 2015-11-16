@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"module": "umd",
 		"target": "ES5",
-		"outDir": "bin/"
+		"outDir": "bin/",
+		"newLine": "LF"
 	},
 	"files": [
 		"src/adapter.ts",
