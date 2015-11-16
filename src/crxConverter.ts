@@ -131,11 +131,11 @@ export function convert(src: string, dest: string) {
         // Convert W3C manifest to Appx manifest
         var rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         rl.question("Identity Name: ", (identityName: string) => {
-            //identityName = identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
+            // identityName = identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             rl.question("Publisher Identity: ", (publisherIdentity: string) => {
-                //publisherIdentity = publisherIdentity || "CN=AUTHOR_NAME";
+                // publisherIdentity = publisherIdentity || "CN=AUTHOR_NAME";
                 rl.question("Publisher Display Name: ", (publisherDisplayName: string) => {
-                    //publisherDisplayName = publisherDisplayName || publisherIdentity.substr(3);
+                    // publisherDisplayName = publisherDisplayName || publisherIdentity.substr(3);
                     rl.close();
                     console.log();
                     console.log("Converting manifest to AppxManifest");
