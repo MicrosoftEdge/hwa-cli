@@ -2,7 +2,7 @@ hwa (command) [args]
 
  convert:
   Converts a supported package to a Windows Appx package. I.e.:
-   hwa crxtoappx ./myapp.crx
+   hwa convert path/to/myapp.crx
 
  deploy:
   Registers and launches an AppxManifest or URL. I.e.:

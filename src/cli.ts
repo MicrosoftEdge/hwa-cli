@@ -105,6 +105,7 @@ export function main(argv: string[], argc: number) {
     }
 }
 
-export function printDocs(filename: string) {
-    console.log(fs.readFileSync(p.join(p.dirname(process.argv[1]), "docs", filename), "utf8"));
+export function printDocs(filename: string) {    
+    var filePath = p.join(p.dirname(fs.realpathSync(__filename)), "../../docs", filename);
+    console.log(fs.readFileSync(filePath, "utf8"));
 }
