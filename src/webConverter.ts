@@ -1,4 +1,5 @@
 import Url = require("url");
+import tld = require("tldjs");
 
 // Constants
 var assetSizes = {
@@ -130,32 +131,26 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest, resolveVa
                 ? parsedUrl.hostname
                 : parsedUrl.pathname.split('/')[1].substr(2);
 
-        // if host starts with www subdomain, chop it off.                       
-        host = host.indexOf('www.') === 0 ? host.substr('www.'.length) : host;
-
-        var path =
-            parsedUrl.path.indexOf("/*.") !== 0
-                ? parsedUrl.path
-                : "/" + parsedUrl.path.split('/').splice(2).join('/');
+        var domain = tld.getDomain(host);
 
         // When protocol is http or the case tested for above where protocol is '*://'
         if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "x:") {
             ["http://", "http://*.", "https://", "https://*."].forEach(function(protocol) {
                 extractedUrls.push({
-                    url: protocol + host + path,
+                    url: protocol + domain + "/",
                     apiAccess: "none"
                 });
             });
         } else if (parsedUrl.protocol === "https:") {
             ["https://", "https://*."].forEach(function(protocol) {
                 extractedUrls.push({
-                    url: protocol + host + path,
+                    url: protocol + domain + "/",
                     apiAccess: "none"
                 });
             });
-        } else {
-            extractedUrls.push({ url: url, apiAccess: "none" });
         }
+            
+        extractedUrls.push({ url: url, apiAccess: "none" });
     }
     removeDupesInPlace(extractedUrls, function (a, b) {
         return a.url === b.url;

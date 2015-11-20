@@ -1,5 +1,5 @@
 {
-    "version": "0.0.17",
+    "version": "0.0.18",
     "name": "hwa-cli",
     "title": "HWA Deployment Command-Line interface",
     "description": "Command-Line interface for deploying HWAs locally and remotely via HWA-Server.",
@@ -17,10 +17,10 @@
     },
     "bugs": "https://github.com/jseanxu/hwa-cli/issues",
     "licenses": [
-        {
-            "type": "MIT",
-            "url": "https://github.com/jseanxu/appx-cli/blob/master/LICENSE"
-        }
+      {
+        "type": "MIT",
+        "url": "https://github.com/jseanxu/appx-cli/blob/master/LICENSE"
+      }
     ],
     "dependencies": {
         "adm-zip": "^0.4.7",
@@ -30,6 +30,7 @@
         "phantomjs": "^1.9.18",
         "request": "^2.65.0",
         "rimraf": "^2.4.3",
+        "tldjs": "^1.6.1",
         "validator": "^4.0.5"
     },
     "optionalDependencies": {
