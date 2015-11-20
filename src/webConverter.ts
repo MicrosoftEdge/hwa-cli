@@ -1,4 +1,4 @@
-import url = require("url");
+import Url = require("url");
 
 // Constants
 var assetSizes = {
@@ -113,14 +113,46 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest, resolveVa
     }
     for (var i = 0; i < urls.length; i++) {
         var url = urls[i];
-        if (url.indexOf("*://") === 0) {
-            // Url starts with '*://', expand this to both 'http://' and 'https://'
-            extractedUrls.push({ url: "http" + url.substr(1), apiAccess: "none" });
-            extractedUrls.push({ url: "https" + url.substr(1), apiAccess: "none" });
-        } else if (url.indexOf("http://") === 0) {
-            // Url starts with 'http://', allow both 'http' and 'https'
-            extractedUrls.push({ url: "http" + url.substr(4), apiAccess: "none" });
-            extractedUrls.push({ url: "https" + url.substr(4), apiAccess: "none" });
+        
+        // Url doesn't parse domain correctly when protocol is '*://', 
+        // replace with x instead to resolve
+        var parsedUrl =
+            url.indexOf("*://") === 0
+                ? Url.parse("x" + url.substr(1))
+                : Url.parse(url);
+
+        // if input url has * in domain (e.g. "http://*.domain.com"), Url parse returns:
+        //    host => ''
+        //    path => '/*.something.com'
+        // To get the right host, path we test for this condition and adjust accordingly
+        var host =
+            parsedUrl.path.indexOf("/*.") !== 0
+                ? parsedUrl.hostname
+                : parsedUrl.pathname.split('/')[1].substr(2);
+
+        // if host starts with www subdomain, chop it off.                       
+        host = host.indexOf('www.') === 0 ? host.substr('www.'.length) : host;
+
+        var path =
+            parsedUrl.path.indexOf("/*.") !== 0
+                ? parsedUrl.path
+                : "/" + parsedUrl.path.split('/').splice(2).join('/');
+
+        // When protocol is http or the case tested for above where protocol is '*://'
+        if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "x:") {
+            ["http://", "http://*.", "https://", "https://*."].forEach(function(protocol) {
+                extractedUrls.push({
+                    url: protocol + host + path,
+                    apiAccess: "none"
+                });
+            });
+        } else if (parsedUrl.protocol === "https:") {
+            ["https://", "https://*."].forEach(function(protocol) {
+                extractedUrls.push({
+                    url: protocol + host + path,
+                    apiAccess: "none"
+                });
+            });
         } else {
             extractedUrls.push({ url: url, apiAccess: "none" });
         }
@@ -210,16 +242,16 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
     
     // Update access rules
     // Set the base access rule using the start_url's base url
-    var baseUrlPattern = url.resolve(w3cManifest.start_url, '/');
+    var baseUrlPattern = Url.resolve(w3cManifest.start_url, '/');
     var baseApiAccess = 'none';
     if (w3cManifest.scope && w3cManifest.scope.length) {
         // If the scope is defined, the base access rule is defined by the scope
-        var parsedScopeUrl = url.parse(w3cManifest.scope);
+        var parsedScopeUrl = Url.parse(w3cManifest.scope);
 
         if (parsedScopeUrl.host && parsedScopeUrl.protocol) {
             baseUrlPattern = w3cManifest.scope;
         } else {
-            baseUrlPattern = url.resolve(baseUrlPattern, w3cManifest.scope);
+            baseUrlPattern = Url.resolve(baseUrlPattern, w3cManifest.scope);
         }
     }
 
