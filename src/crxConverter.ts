@@ -10,8 +10,10 @@ import webConverter = require("./webConverter");
 
 var admzip = require("adm-zip");
 var guid = require("guid");
+var inquirer = require("inquirer");
 var phantomjs = require("phantomjs");
 var rimraf = require("rimraf");
+var yargs = require("yargs");
 
 /*
     .crx file format (Little Endian)
@@ -39,7 +41,7 @@ interface IAssetInfo {
     src: string;
 }
 
-export function convert(src: string, dest: string) {
+export function convert(argv: any, src: string, dest: string) {
     return new Promise<void>(c => {
         // Setup tmp
         rimraf.sync(dest);
@@ -127,42 +129,67 @@ export function convert(src: string, dest: string) {
         (logoLarge.nativeSize.w !== logoLarge.requiredSize.w || logoLarge.nativeSize.h !== logoLarge.requiredSize.h) && resizeAndAddToManifest(logoLarge);
         (splashScreen.nativeSize.w !== splashScreen.requiredSize.w || splashScreen.nativeSize.h !== splashScreen.requiredSize.h) && resizeAndAddToManifest(splashScreen);
 
+        var questions:any[] = [{
+                type: "input",
+                name: "identityName",
+                message: "Identity Name:"
+            }, {
+                type: "input",
+                name: "publisherIdentity",
+                message: "Publisher Identity:"
+            }, {
+                type: "input",
+                name: "publisherDisplayName",
+                message: "Publisher Display Name:"
+            }];
 
-        // Convert W3C manifest to Appx manifest
-        var rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-        rl.question("Identity Name: ", (identityName: string) => {
-            //identityName = identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
-            rl.question("Publisher Identity: ", (publisherIdentity: string) => {
-                //publisherIdentity = publisherIdentity || "CN=AUTHOR_NAME";
-                rl.question("Publisher Display Name: ", (publisherDisplayName: string) => {
-                    //publisherDisplayName = publisherDisplayName || publisherIdentity.substr(3);
-                    rl.close();
-                    console.log();
-                    console.log("Converting manifest to AppxManifest");
-                    var xmlManifest = webConverter.w3CToAppxManifest(w3cManifest, fs.readFileSync(p.join(__dirname, "../../templates/w3c-AppxManifest-template.xml"), "utf8"),
-                        {
-                            identityName: identityName,
-                            publisherDisplayName: publisherDisplayName,
-                            publisherIdentity: publisherIdentity
-                        },
-                        [
-                            { name: "GeneratedFrom", value: "HWA-CLI" },
-                            { name: "GenerationDate", value: new Date().toUTCString() },
-                            { name: "ToolVersion", value: "0.1.0" }
-                        ]);
-                    console.log();
-        
-                    // Write the AppxManifest
-                    var appxManifestOutputPath = p.join(dest, "AppxManifest.xml");
-                    console.log("Writing AppxManifest: " + appxManifestOutputPath);
-                    if (fs.existsSync(appxManifestOutputPath)) {
-                        fs.unlinkSync(appxManifestOutputPath);
-                    }
-                    fs.writeFileSync(appxManifestOutputPath, xmlManifest);
-                    console.log();
-                    c();
-                });
+        if ((<any>argv).more) {
+            questions.push({
+                type: "confirm",
+                name: "useCurrentName",
+                message: "'" + w3cManifest.short_name + "' is current the App Display Name. Is this okay?"
             });
+            questions.push({
+                type: "input",
+                name: "appDisplayName",
+                message: "App Display Name:",
+                when: (function(answers) {
+                    return !answers.useCurrentName
+                })
+            });
+        }
+
+
+
+        inquirer.prompt(questions, function(answers: any) {
+            console.log("Converting manifest to AppxManifest");
+            var xmlManifest =
+                webConverter.w3CToAppxManifest(
+                    w3cManifest,
+                    fs.readFileSync(p.join(__dirname, "../../templates/w3c-AppxManifest-template.xml"), "utf8"),
+                    {
+                        appDisplayName: answers.useCurrentName ? w3cManifest.short_name : answers.appDisplayName,
+                        // identityName: answers.identityName,
+                        identityName: answers.identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        // publisherDisplayName: answers.publisherDisplayName,
+                        publisherDisplayName: answers.publisherDisplayName || "AUTHOR_NAME",
+                        // publisherIdentity: answers.publisherIdentity
+                        publisherIdentity: answers.publisherIdentity || "CN=AUTHOR_NAME"
+                    }, [
+                        { name: "GeneratedFrom", value: "HWA-CLI" },
+                        { name: "GenerationDate", value: new Date().toUTCString() },
+                        { name: "ToolVersion", value: "0.1.0" }
+                    ]);
+            console.log();
+            // Write the AppxManifest
+            var appxManifestOutputPath = p.join(dest, "AppxManifest.xml");
+            console.log("Writing AppxManifest: " + appxManifestOutputPath);
+            if (fs.existsSync(appxManifestOutputPath)) {
+                fs.unlinkSync(appxManifestOutputPath);
+            }
+            fs.writeFileSync(appxManifestOutputPath, xmlManifest);
+            console.log();
+            c();
         });
     });
 }

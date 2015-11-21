@@ -1,5 +1,5 @@
 import Url = require("url");
-import tld = require("tldjs");
+var tld = require("tldjs");
 
 // Constants
 var assetSizes = {
@@ -14,6 +14,7 @@ var validIconFormats = [
 ];
 
 export interface IAppIdentity {
+    appDisplayName?: string;
     identityName: string;
     publisherIdentity: string;
     publisherDisplayName: string;
@@ -98,6 +99,7 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest, resolveVa
             }
         }
     }
+
     // Extract icons
     for (var size in chromeManifest.icons) {
         w3cManifest.icons.push({
@@ -208,11 +210,12 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
     console.log(`  Splashscreen: ${splashScreen}`);
     
     // Update properties
-    var appxManifest = appxManifestTemplate.replace(/{IdentityName}/g, appIdentity.identityName)
+    var appxManifest = appxManifestTemplate
+        .replace(/{IdentityName}/g, appIdentity.identityName)
         .replace(/{Version}/g, "1.0.0.0")
         .replace(/{PublisherIdentity}/g, appIdentity.publisherIdentity)
         .replace(/{PhoneProductId}/g, guid)
-        .replace(/{AppDisplayName}/g, encodeXML(w3cManifest.short_name))
+        .replace(/{AppDisplayName}/g, encodeXML(appIdentity.appDisplayName || w3cManifest.short_name))
         .replace(/{PublisherDisplayName}/g, appIdentity.publisherDisplayName)
         .replace(/{LogoStore}/g, logoStore)
         .replace(/{Locale}/g, w3cManifest.lang)

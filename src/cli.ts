@@ -1,5 +1,6 @@
 ﻿/// <reference path="../projects/typings/node.d.ts" />
 /// <reference path="../projects/typings/adapter.d.ts" />
+
 import cp = require("child_process");
 import fs = require("fs");
 import net = require("net");
@@ -15,6 +16,7 @@ var archiver = require("archiver");
 var ncp = require("ncp");
 var rimraf = require("rimraf");
 var validator = require("validator");
+var yargs = require('yargs');
 
 var templateAppxManifestPath = "templates/AppxManifest";
 var rootTempPath = p.join(os.tmpdir(), "hwa-client");
@@ -34,17 +36,17 @@ function cleanTemp() {
 }
 cleanTemp();
 
-export function main(argv: string[], argc: number) {
-    var cmd = (argv[2] || "").toLowerCase();
-    var args = argv.slice(3);
+export function main(argv: any, argc: number) {
+    var cmd = (argv._[0] || "").toLowerCase();
+    var args = argv._.slice(1);
     var handled = true;
 
-    switch (cmd.toLowerCase()) {
+    switch (cmd) {
         case "convert":
             if (fs.existsSync(args[0])) {
                 var filenameWithoutExt = p.parse(args[0]).name;
                 var outputPath = p.join(rootTempPath, "convert");
-                crxConverter.convert(args[0], outputPath).then(() => {
+                crxConverter.convert(argv, args[0], outputPath).then(() => {
                     cloudAppx.invoke(filenameWithoutExt, outputPath, p.join(p.dirname(args[0]), filenameWithoutExt + ".appx"), (e: Error) => {
                         e && console.log(e);
                     });
@@ -101,7 +103,7 @@ export function main(argv: string[], argc: number) {
     }
 
     if (!handled) {
-        printDocs("usage");
+        argv.help();
     }
 }
 

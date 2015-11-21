@@ -1,39 +1,41 @@
 {
-    "version": "0.0.18",
-    "name": "hwa-cli",
-    "title": "HWA Deployment Command-Line interface",
-    "description": "Command-Line interface for deploying HWAs locally and remotely via HWA-Server.",
-    "preferGlobal": true,
-    "bin": {
-        "hwa": "main.js"
-    },
-    "author": {
-        "name": "Sean Xu",
-        "url": "https://github.com/jseanxu"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/jseanxu/hwa-cli"
-    },
-    "bugs": "https://github.com/jseanxu/hwa-cli/issues",
-    "licenses": [
-      {
-        "type": "MIT",
-        "url": "https://github.com/jseanxu/appx-cli/blob/master/LICENSE"
-      }
-    ],
-    "dependencies": {
-        "adm-zip": "^0.4.7",
-        "archiver": "^0.16.0",
-        "guid": "^0.0.12",
-        "ncp": "^2.0.0",
-        "phantomjs": "^1.9.18",
-        "request": "^2.65.0",
-        "rimraf": "^2.4.3",
-        "tldjs": "^1.6.1",
-        "validator": "^4.0.5"
-    },
-    "optionalDependencies": {
-        "appx-tools": "^0.0.3"
+  "version": "0.0.18",
+  "name": "hwa-cli",
+  "title": "HWA Deployment Command-Line interface",
+  "description": "Command-Line interface for deploying HWAs locally and remotely via HWA-Server.",
+  "preferGlobal": true,
+  "bin": {
+    "hwa": "main.js"
+  },
+  "author": {
+    "name": "Sean Xu",
+    "url": "https://github.com/jseanxu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jseanxu/hwa-cli"
+  },
+  "bugs": "https://github.com/jseanxu/hwa-cli/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jseanxu/appx-cli/blob/master/LICENSE"
     }
+  ],
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "archiver": "^0.16.0",
+    "guid": "^0.0.12",
+    "inquirer": "^0.11.0",
+    "ncp": "^2.0.0",
+    "phantomjs": "^1.9.18",
+    "request": "^2.65.0",
+    "rimraf": "^2.4.3",
+    "tldjs": "^1.6.1",
+    "validator": "^4.0.5",
+    "yargs": "^3.30.0"
+  },
+  "optionalDependencies": {
+    "appx-tools": "^0.0.3"
+  }
 }
