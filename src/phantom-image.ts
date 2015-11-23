@@ -5,7 +5,8 @@ var inputPath = system.args[1];
 var targetWidth = +system.args[2];
 var targetHeight = +system.args[3];
 var outputPath = system.args[4];
-console.log(inputPath + " " + targetWidth + " " + targetHeight + " " + outputPath);
+
+// console.log(inputPath + " " + targetWidth + " " + targetHeight + " " + outputPath);
 
 var page = require('webpage').create();
 page.open('about:blank', function () {
@@ -20,6 +21,8 @@ page.open('about:blank', function () {
         phantom.exit();
     };
     page.evaluate(function (src: string, w: number, h: number) {
+        src = 'file:///' + src;
+        
         var img = new Image();
         img.onload = () => {
             var div = document.createElement("div");
@@ -37,7 +40,7 @@ page.open('about:blank', function () {
             }
             document.body.style.margin = "0";
             document.body.appendChild(div);
-            setTimeout((<any>window).callPhantom);
+            setTimeout((<any>window).callPhantom, 1);
         };
         img.src = src;
     }, inputPath, targetWidth, targetHeight);
