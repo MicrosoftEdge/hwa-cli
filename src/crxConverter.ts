@@ -224,7 +224,7 @@ export function extractCrx(src: string, dest: string) {
 
 function resizeImage(absSrcPath: string, targetWidth: number, targetHeight: number, newFilename: string) {
     var outputPath = p.join(p.dirname(absSrcPath), newFilename);
-    cp.execFileSync(phantomjs.path, [p.join(__dirname, "phantom-image.js"), absSrcPath, "" + targetWidth, "" + targetHeight, outputPath]/*, { stdio: [process.stdin, process.stdout, process.stderr] }*/);
+    cp.execFileSync(phantomjs.path, [p.join(__dirname, "phantom-image.js"), absSrcPath, "" + targetWidth, "" + targetHeight, outputPath], { stdio: [process.stdin, process.stdout, process.stderr] });
 }
 
 function sanitizeJSONString(str: string) {

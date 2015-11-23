@@ -47,5 +47,5 @@ if (module.parent) {
     module.exports = {};
 } else {
     var hwaCli = require("./bin/src/cli.js");
-    hwaCli.main(argv, process.argc)
+    hwaCli.main(argv);
 ;}

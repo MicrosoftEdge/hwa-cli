@@ -12,11 +12,9 @@ import cloudAppx = require("./cloudAppx");
 import crxConverter = require("./crxConverter");
 import webConverter = require("./webConverter");
 
-var archiver = require("archiver");
 var ncp = require("ncp");
 var rimraf = require("rimraf");
 var validator = require("validator");
-var yargs = require('yargs');
 
 var templateAppxManifestPath = "templates/AppxManifest";
 var rootTempPath = p.join(os.tmpdir(), "hwa-client");
@@ -36,7 +34,7 @@ function cleanTemp() {
 }
 cleanTemp();
 
-export function main(argv: any, argc: number) {
+export function main(argv: any) {
     var cmd = (argv._[0] || "").toLowerCase();
     var args = argv._.slice(1);
     var handled = true;
