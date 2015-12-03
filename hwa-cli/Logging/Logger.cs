@@ -1,13 +1,17 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="Logger.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli.Logging
+namespace HwaCli.Logging
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
+    using Newtonsoft.Json;
+
     public class Logger
     {
         private string outputPath;
@@ -30,15 +34,15 @@ namespace hwa_cli.Logging
 
             if (!File.Exists(filePath))
             {
-                logger = new StreamWriter(filePath);
+                this.logger = new StreamWriter(filePath);
             }
             else
             {
-                logger = File.AppendText(filePath);
+                this.logger = File.AppendText(filePath);
             }
 
-            errorBuffer = new List<Error>();
-            messageBuffer = new List<string>();
+            this.errorBuffer = new List<Error>();
+            this.messageBuffer = new List<string>();
         }
 
         public Logger()
@@ -66,7 +70,7 @@ namespace hwa_cli.Logging
 
             if (this.outputToFile)
             {
-                errorBuffer.Add(error);
+                this.errorBuffer.Add(error);
             }
         }
 
@@ -79,21 +83,21 @@ namespace hwa_cli.Logging
 
             if (this.outputToFile)
             {
-                messageBuffer.Add(message);
+                this.messageBuffer.Add(message);
             }
         }
 
         public void LogMessage(string format, params string[] values)
         {
             var message = string.Format(format, values);
-            LogMessage(message);
+            this.LogMessage(message);
         }
 
         public void LogVerbose(string message)
         {
             if (this.Verbose)
             {
-                LogMessage(message);
+                this.LogMessage(message);
             }
         }
 
@@ -101,26 +105,25 @@ namespace hwa_cli.Logging
         {
             if (this.Verbose)
             {
-                LogMessage(format, values);
+                this.LogMessage(format, values);
             }
         }
 
         public void Close()
-        {
-            
+        { 
             if (this.outputToFile)
             {
-                using (JsonWriter jw = new JsonTextWriter(logger))
+                using (JsonWriter jw = new JsonTextWriter(this.logger))
                 {
                     jw.Formatting = Formatting.Indented;
 
-                    var outputFile = new ErrorOutputFile() { Errors = errorBuffer, Messages = messageBuffer };
+                    var outputFile = new ErrorOutputFile() { Errors = this.errorBuffer, Messages = this.messageBuffer };
 
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(jw, outputFile);
                 }
 
-                logger.Close();
+                this.logger.Close();
 
                 if (this.OutputToConsole)
                 {

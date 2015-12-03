@@ -1,23 +1,27 @@
-﻿using hwa_cli.DomainParser;
-using hwa_cli.Logging;
-using hwa_cli.Manifest;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using TLD = DomainName.Library;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="Converter.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli
+namespace HwaCli
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Drawing2D;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using System.Xml.Linq;
+
+    using HwaCli.DomainParser;
+    using HwaCli.Logging;
+    using HwaCli.Manifest;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
     public class Converter
     {
         private const string TOOL_NAME = "Store .web Tool";
@@ -37,11 +41,12 @@ namespace hwa_cli
         /// <summary>
         ///  This method takes an anonymous object, determines type of manifest, and converts it to Appx
         /// </summary>
-        /// <param name="manifestJson"></param>
-        /// <param name=""></param>
+        /// <param name="manifestJson">string containing the JSON metadata for the web app manifest</param>
+        /// <param name="identity"><seealso cref="IdentityAttributes"/> object defining the identity of the Appx manifest publisher</param>
+        /// <returns><seealso cref="XElement"/></returns>
         public XElement Convert(string manifestJson, IdentityAttributes identity)
         {
-            XElement xManifest = null;
+            XElement xmlManifest = null;
             var manifestJObject = JObject.Parse(manifestJson);
 
             // The 'app' property is a Chrome specific property that doesn't follow the W3C pattern,
@@ -49,24 +54,24 @@ namespace hwa_cli
             if (manifestJObject["app"] != null)
             {
                 var chromeManifest = JsonConvert.DeserializeObject<ChromeManifest>(manifestJson);
-                xManifest = Convert(chromeManifest, identity);
+                xmlManifest = this.Convert(chromeManifest, identity);
             }
             else
             {
                 var w3cManifest = JsonConvert.DeserializeObject<W3cManifest>(manifestJson);
-                xManifest = Convert(w3cManifest, identity);
+                xmlManifest = this.Convert(w3cManifest, identity);
             }
 
-            return xManifest;
+            return xmlManifest;
         }
 
         private XElement Convert(ChromeManifest manifest, IdentityAttributes identityAttrs)
         {
             var startUrl = manifest.App.Launch.WebUrl.NullIfEmpty() ?? (!string.IsNullOrEmpty(manifest.App.Launch.LocalPath) ? "ms-appx-web:///" + manifest.App.Launch.LocalPath : string.Empty);
             
-            if(string.IsNullOrEmpty(startUrl))
+            if (string.IsNullOrEmpty(startUrl))
             {
-                logger.LogError(Errors.LaunchUrlNotSpecified);
+                this.logger.LogError(Errors.LaunchUrlNotSpecified);
                 throw new ConversionException("Start url is not specifed in ChromeManifest.");
             }
 
@@ -96,7 +101,7 @@ namespace hwa_cli
                     foreach (var property in properties)
                     {
                         var value = property.GetValue(w3cManifest);
-                        if (value != null && value.GetType() == typeof(String) && (((string)value).ToLowerInvariant().IndexOf("__msg_") == 0))
+                        if (value != null && value.GetType() == typeof(string) && (((string)value).ToLowerInvariant().IndexOf("__msg_") == 0))
                         {
                             foreach (var obj in msgs)
                             {
@@ -111,8 +116,7 @@ namespace hwa_cli
                 }
             }
 
-
-            foreach (var size in manifest.icons.Properties())
+            foreach (var size in manifest.Icons.Properties())
             {
                 w3cManifest.Icons.Add(new W3cImage()
                     {
@@ -134,14 +138,15 @@ namespace hwa_cli
 
                 if (string.IsNullOrEmpty(hostname))
                 {
-                    logger.LogError(Errors.DomainParsingFailed, url);
+                    this.logger.LogError(Errors.DomainParsingFailed, url);
                     throw new ConversionException(string.Format("Domain parsing failed for url: {0}", url));
                 }
 
                 if (protocol == "http://" || protocol == "*://" || string.IsNullOrEmpty(protocol))
                 {
                     (new List<string> { "http://", "http://*.", "https://", "https://*." })
-                        .ForEach(proto => {
+                        .ForEach(proto => 
+                        {
                             extractedUrls.Add(new MjsAccessWhitelistUrl()
                             {
                                 Url = proto + hostname + "/",
@@ -151,8 +156,9 @@ namespace hwa_cli
                 }
                 else if (protocol == "https://")
                 {
-                    (new List<string> {"https://", "https://*." })
-                         .ForEach(proto => {
+                    (new List<string> { "https://", "https://*." })
+                         .ForEach(proto => 
+                         {
                              extractedUrls.Add(new MjsAccessWhitelistUrl()
                              {
                                  Url = proto + hostname + "/",
@@ -173,14 +179,14 @@ namespace hwa_cli
 
             w3cManifest.MjsAccessWhitelist = extractedUrls;
 
-            return Convert(w3cManifest, identityAttrs);
+            return this.Convert(w3cManifest, identityAttrs);
         }
 
         private XElement Convert(W3cManifest manifest, IdentityAttributes identityAttrs)
         {
-            if (String.IsNullOrEmpty(manifest.StartUrl))
+            if (string.IsNullOrEmpty(manifest.StartUrl))
             {
-                logger.LogError(Errors.StartUrlNotSpecified, new string[0]);
+                this.logger.LogError(Errors.StartUrlNotSpecified, new string[0]);
                 throw new ConversionException("Start url is not specifed in W3cManifest.");
             }
 
@@ -190,7 +196,7 @@ namespace hwa_cli
                      logoLarge = new W3cImage() { Sizes = "150x150" }, 
                      splashScreen = new W3cImage() { Sizes = "300x620" };
 
-            foreach(var icon in manifest.Icons)
+            foreach (var icon in manifest.Icons)
             {
                 if (icon.Sizes == logoStore.Sizes)
                 {
@@ -210,16 +216,16 @@ namespace hwa_cli
                 }
             }
 
-            logoStore.Src = logoStore.Src.NullIfEmpty() ?? FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoStore), GetWidthFromW3cImage(logoStore), manifest.Icons).Src;
-            logoSmall.Src = logoSmall.Src.NullIfEmpty() ?? FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoSmall), GetWidthFromW3cImage(logoSmall), manifest.Icons).Src;
-            logoLarge.Src = logoLarge.Src.NullIfEmpty() ?? FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoLarge), GetWidthFromW3cImage(logoLarge), manifest.Icons).Src;
-            splashScreen.Src = splashScreen.Src.NullIfEmpty() ?? FindNearestMatchAndResizeImage(GetHeightFromW3cImage(splashScreen), GetWidthFromW3cImage(splashScreen), manifest.Icons).Src;
+            logoStore.Src = logoStore.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoStore), GetWidthFromW3cImage(logoStore), manifest.Icons).Src;
+            logoSmall.Src = logoSmall.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoSmall), GetWidthFromW3cImage(logoSmall), manifest.Icons).Src;
+            logoLarge.Src = logoLarge.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoLarge), GetWidthFromW3cImage(logoLarge), manifest.Icons).Src;
+            splashScreen.Src = splashScreen.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(splashScreen), GetWidthFromW3cImage(splashScreen), manifest.Icons).Src;
 
-            logger.LogMessage("Established assets:");
-            logger.LogMessage("\tStore Logo: {0}", logoStore.Src);
-            logger.LogMessage("\tSmall Logo: {0}", logoSmall.Src);
-            logger.LogMessage("\tLarge Logo: {0}", logoLarge.Src);
-            logger.LogMessage("\tSplash Screen: {0}", splashScreen.Src);
+            this.logger.LogMessage("Established assets:");
+            this.logger.LogMessage("\tStore Logo: {0}", logoStore.Src);
+            this.logger.LogMessage("\tSmall Logo: {0}", logoSmall.Src);
+            this.logger.LogMessage("\tLarge Logo: {0}", logoLarge.Src);
+            this.logger.LogMessage("\tSplash Screen: {0}", splashScreen.Src);
 
             // Update XML Template
             var appxManifest = XElement.Load("AppxManifestTemplate.xml");
@@ -308,36 +314,35 @@ namespace hwa_cli
                     }
 
                     var apiAccess = urlObj.ApiAccess != null ? urlObj.ApiAccess : "none";
-                    if (String.Equals(accessUrl, baseUrlPattern, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(accessUrl, baseUrlPattern, StringComparison.InvariantCultureIgnoreCase))
                     {
                         baseApiAccess = apiAccess;
                     }
                     else
                     {
                         acurs.Add(
-                            new XElement(xmlnsUap + "Rule",
+                            new XElement(
+                                xmlnsUap + "Rule",
                                 new XAttribute("Type", "include"),
                                 new XAttribute("WindowsRuntimeAccess", apiAccess),
                                 new XAttribute("Match", accessUrl)));
                             
-                        logger.LogMessage("Access Rule added: [{0}] - {1}", apiAccess, accessUrl);
+                        this.logger.LogMessage("Access Rule added: [{0}] - {1}", apiAccess, accessUrl);
                     }
                 }
             }
 
             // Add base rule
             acurs.Add(
-                            new XElement(xmlnsUap + "Rule",
-                                new XAttribute("Type", "include"),
-                                new XAttribute("WindowsRuntimeAccess", baseApiAccess),
-                                new XAttribute("Match", baseUrlPattern)));
+                new XElement(
+                    xmlnsUap + "Rule",
+                    new XAttribute("Type", "include"),
+                    new XAttribute("WindowsRuntimeAccess", baseApiAccess),
+                    new XAttribute("Match", baseUrlPattern)));
+
+            this.logger.LogMessage("Access Rule added: [{0}] - {1}", baseApiAccess, baseUrlPattern);
 
             return appxManifest;
-        }
-
-        private static bool PropertyExists(dynamic obj, string prop)
-        {
-            return ((IDictionary<String, Object>)obj).ContainsKey(prop);
         }
 
         private static string SanitizeIdentityName(string name)
@@ -378,6 +383,16 @@ namespace hwa_cli
             return sanitizedPath;
         }
 
+        private static int GetHeightFromW3cImage(W3cImage img)
+        {
+            return int.Parse(img.Sizes.Split('x')[1]);
+        }
+
+        private static int GetWidthFromW3cImage(W3cImage img)
+        {
+            return int.Parse(img.Sizes.Split('x')[0]);
+        }
+
         private W3cImage FindNearestMatchAndResizeImage(int h, int w, IList<W3cImage> assets)
         {
             W3cImage result = null;
@@ -385,7 +400,7 @@ namespace hwa_cli
             var prevDeltaH = int.MaxValue;
             var prevDeltaW = int.MaxValue;
 
-            foreach(var img in assets)
+            foreach (var img in assets)
             {
                 var imgW = GetWidthFromW3cImage(img);
                 var imgH = GetHeightFromW3cImage(img);
@@ -396,13 +411,13 @@ namespace hwa_cli
                 var prevDelta = Math.Min(prevDeltaH, prevDeltaW);
                 var delta = Math.Min(deltaH, deltaW);
 
-                if (delta < prevDelta )
+                if (delta < prevDelta)
                 {
                     result = img;
                 }
             }
 
-            return ResizeAndAddImage(result, h, w);
+            return this.ResizeAndAddImage(result, h, w);
         }
 
         private W3cImage ResizeAndAddImage(W3cImage img, int h, int w)
@@ -433,6 +448,7 @@ namespace hwa_cli
                             var offsetY = (h - srcImg.Height) / 2;
                             gfx.DrawImage(srcImg, offsetX, offsetY, srcImg.Width, srcImg.Height);
                         }
+
                         destImg.Save(outputSrc);
                     }
                 }
@@ -445,16 +461,6 @@ namespace hwa_cli
             };
 
             return resImg;
-        }
-
-        private static int GetHeightFromW3cImage(W3cImage img)
-        {
-            return int.Parse(img.Sizes.Split('x')[1]);
-        }
-
-        private static int GetWidthFromW3cImage(W3cImage img)
-        {
-            return int.Parse(img.Sizes.Split('x')[0]);
         }
     }
 }

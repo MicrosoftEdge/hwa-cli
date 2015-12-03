@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="ChromeManifest.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli.Manifest
+namespace HwaCli.Manifest
 {
+    using Newtonsoft.Json;
+
     public class ChromeManifest
     {
         [JsonProperty(PropertyName = "app")]
@@ -22,7 +23,7 @@ namespace hwa_cli.Manifest
         public string DefaultLocale { get; set; }
 
         [JsonProperty(PropertyName = "icons")]
-        public dynamic icons { get; set; }
+        public dynamic Icons { get; set; }
 
         [JsonProperty(PropertyName = "lang")]
         public string Language { get; set; }

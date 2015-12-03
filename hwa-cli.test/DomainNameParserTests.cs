@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using hwa_cli.DomainParser;
+using HwaCli.DomainParser;
 
-namespace hwa_cli.test
+namespace HwaCli.test
 {
     [TestClass]
     public class DomainNameParserTests

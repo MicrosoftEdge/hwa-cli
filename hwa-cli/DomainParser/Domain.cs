@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="Domain.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli.DomainParser
+namespace HwaCli.DomainParser
 {
+    using System;
+
     public class Domain
     {
         public string Protocol { get; set; }

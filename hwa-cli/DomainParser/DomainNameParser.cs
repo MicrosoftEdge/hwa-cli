@@ -1,21 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="DomainNameParser.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-using TLD = DomainName.Library;
-
-namespace hwa_cli.DomainParser
+namespace HwaCli.DomainParser
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+
+    using TLD = DomainName.Library;
+
     public class DomainNameParser
     {
-        public const string REG_MATCH_STRING = @"(?<protocol>((http|https|\*)://)|ms-appx:///)?(?<hostname>(([\w\*]+\.)+([\w]+)))?(?<pathname>.*)";
+        public const string REGXURLSTRING = @"(?<protocol>((http|https|\*)://)|ms-appx:///)?(?<hostname>(([\w\*]+\.)+([\w]+)))?(?<pathname>.*)";
 
         public static Domain Parse(string url)
         {
-            var urlMatch = Regex.Match(url, REG_MATCH_STRING);
+            var urlMatch = Regex.Match(url, REGXURLSTRING);
             string protocol = urlMatch.Groups["protocol"].Value;
             string hostName = urlMatch.Groups["hostname"].Value;
             string pathname = urlMatch.Groups["pathname"].Value;

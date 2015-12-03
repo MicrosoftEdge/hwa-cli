@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="CliOptions.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-using CommandLine;
-using CommandLine.Text;
-
-namespace hwa_cli
+namespace HwaCli
 {
+    using System;
+
+    using CommandLine;
+    using CommandLine.Text;
+
     public class CliOptions
     {
         [Option('m', "manifest", 
@@ -23,7 +25,7 @@ namespace hwa_cli
 
         public Guid IdentityNameAsGuid
         {
-            get { return Guid.Parse(IdentityName); }
+            get { return Guid.Parse(this.IdentityName); }
         }
 
         [Option('p', "publisherIdentity",
@@ -64,6 +66,9 @@ namespace hwa_cli
             HelpText = "Indicates if the program should wait for user input before closing.")]
         public bool Wait { get; set; }
 
+        [ParserState]
+        public IParserState LastParserState { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -75,15 +80,10 @@ namespace hwa_cli
                 AddDashesToOption = true
             };
 
-            // help.AddPreOptionsLine("Usage: hwa-cli --manifest <manifest-path> --identityName <identity-guid> --publisherIdenty <publisher-identity> --publisherDisplayName <publisher-display-name>");
-            help.AddPreOptionsLine("Zack Hall");
-            help.AddPreOptionsLine("Usage: hwa-cli -m <manifest-path> -i <identity-guid> -p <publisher-identity> -n <publisher-display-name>");
+            help.AddPreOptionsLine("Usage: hwa-cli --manifest <manifest-path> --identityName <identity-guid> --publisherIdenty <publisher-identity> --publisherDisplayName <publisher-display-name> --makeAppxPath <path-to-makeappx-utility>");
             help.AddOptions(this);
 
             return help;
         }
-
-        [ParserState]
-        public IParserState LastParserState { get; set; }
     }
 }

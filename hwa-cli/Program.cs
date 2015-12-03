@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="Program.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-using hwa_cli.Logging;
-using hwa_cli.Manifest;
-using Newtonsoft.Json;
-using System.Xml.Linq;
-using System.Diagnostics;
-
-namespace hwa_cli
+namespace HwaCli
 {
+    using System;
+    using System.IO;
+    using System.Xml.Linq;
+
+    using HwaCli.Logging;
+
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var options = new CliOptions();
 
@@ -66,7 +65,7 @@ namespace hwa_cli
                     logger.LogMessage("Errors encountered, failed to create Appx package.");
                 }
 
-                if (appxManifest!= null && !string.IsNullOrEmpty(options.MakeAppxPath))
+                if (appxManifest != null && !string.IsNullOrEmpty(options.MakeAppxPath))
                 {
                     Packager.PackageAsAppx(logger, options.MakeAppxPath, rootPath.ToString());
                 }

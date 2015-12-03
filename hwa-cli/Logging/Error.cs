@@ -1,11 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="Error.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli.Logging
+namespace HwaCli.Logging
 {
+    using System;
+
+    public class Error
+    {
+        public int Code { get; set; }
+
+        public string Type { get; set; }
+
+        public string Severity { get; set; }
+
+        public string[] Params { get; set; }
+
+        public string Message { get; set; }
+    }
+
     public class Errors
     {
         private const string ERROR = "ERROR";
@@ -55,18 +70,5 @@ namespace hwa_cli.Logging
                 Severity = ERROR,
                 Message = "Domain parsing failed for the following url: {0}"
             };
-    }
-
-    public class Error
-    {
-        public int Code { get; set; }
-
-        public string Type { get; set; }
-
-        public string Severity { get; set; }
-
-        public string[] Params { get; set; }
-
-        public string Message { get; set; }
     }
 }

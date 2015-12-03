@@ -1,14 +1,16 @@
-﻿using hwa_cli.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="Packager.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli
+namespace HwaCli
 {
+    using System.Diagnostics;
+    using System.IO;
+
+    using HwaCli.Logging;
+
     public class Packager
     {
         public static void PackageAsAppx(Logger logger, string makeAppxPath, string rootPath, string packageName = "App.appx")
@@ -24,7 +26,6 @@ namespace hwa_cli
 
             try
             {
-
                 using (var appxProc = Process.Start(startInfo))
                 {
                     while (!appxProc.StandardOutput.EndOfStream)

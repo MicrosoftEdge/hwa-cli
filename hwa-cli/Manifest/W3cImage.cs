@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------------------------------
+// <copyright file="W3cImage.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>
+// ------------------------------------------------------------------------------------------------
 
-namespace hwa_cli.Manifest
+namespace HwaCli.Manifest
 {
+    using Newtonsoft.Json;
+
     public class W3cImage
     {
         [JsonProperty(PropertyName = "src")]
