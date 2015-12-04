@@ -73,7 +73,12 @@ namespace HwaCli
         /// <returns><seealso cref="XElement"/></returns>
         private XElement Convert(ChromeManifest manifest, IdentityAttributes identityAttrs)
         {
-            var startUrl = manifest.App.Launch.WebUrl.NullIfEmpty() ?? (!string.IsNullOrEmpty(manifest.App.Launch.LocalPath) ? "ms-appx-web:///" + manifest.App.Launch.LocalPath : string.Empty);
+            string startUrl = manifest.App.Launch.WebUrl;
+
+            if (string.IsNullOrEmpty(startUrl) && !string.IsNullOrEmpty(manifest.App.Launch.LocalPath))
+            {
+                startUrl = "ms-appx-web:///" + manifest.App.Launch.LocalPath;
+            }
             
             if (string.IsNullOrEmpty(startUrl))
             {
@@ -291,26 +296,25 @@ namespace HwaCli
 
             // Add ACURs
             var acurs = applicationElem.Descendants(xmlnsUap + "ApplicationContentUriRules").FirstOrDefault();
-            var urlRegexString = @"(?<protocol>(http|https|\*)://)?(?<hostname>(([\w\*]+\.)+([\w]+)))?(?<pathname>.*)";
 
-            var startUrlMatch = Regex.Match(manifest.StartUrl, urlRegexString);
+            var domain = DomainNameParser.Parse(manifest.StartUrl);
 
-            string baseUrlPattern = startUrlMatch.Groups["protocol"].Value + startUrlMatch.Groups["hostname"].Value;
+            string baseUrlPattern = domain.Scheme + "://" + domain.HostName;
             var baseApiAccess = "none";
 
             if (!string.IsNullOrEmpty(manifest.Scope))
             {
                 // If scope is defined, the base access rule is defined by the scope
-                var parsedScopeUrl = Regex.Match(manifest.Scope, urlRegexString);
-                if (!string.IsNullOrEmpty(parsedScopeUrl.Groups["protocol"].Value) && !string.IsNullOrEmpty(parsedScopeUrl.Groups["hostname"].Value))
+                var parsedScopeUrl = DomainNameParser.Parse(manifest.Scope);
+                if (!string.IsNullOrEmpty(parsedScopeUrl.Scheme) && !string.IsNullOrEmpty(parsedScopeUrl.HostName))
                 {
                     baseUrlPattern = manifest.Scope;
                 }
                 else
                 {
-                    var pathname = parsedScopeUrl.Groups["pathname"].Value;
+                    var pathname = parsedScopeUrl.PathName;
                     pathname = pathname.StartsWith("/") ? pathname : "/" + pathname;
-                    baseUrlPattern = startUrlMatch.Groups["protocol"].Value + startUrlMatch.Groups["hostname"].Value + pathname;
+                    baseUrlPattern = domain.Scheme + "://" + domain.HostName + pathname;
                 }
             }
 
