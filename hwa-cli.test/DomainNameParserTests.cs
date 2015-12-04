@@ -14,9 +14,9 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("http://abc.domain.com/123.html");
-            Assert.AreEqual("http://", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("abc.domain.com", domain.FullHostName);
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("abc.domain.com", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
         }
 
@@ -26,9 +26,9 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("http://abc.domain.co.uk/123.html");
-            Assert.AreEqual("http://", domain.Protocol);
-            Assert.AreEqual("domain.co.uk", domain.HostName);
-            Assert.AreEqual("abc.domain.co.uk", domain.FullHostName);
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("domain.co.uk", domain.DomainName);
+            Assert.AreEqual("abc.domain.co.uk", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
         }
 
@@ -38,9 +38,9 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("*://abc.domain.com/123.html");
-            Assert.AreEqual("*://", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("abc.domain.com", domain.FullHostName);
+            Assert.AreEqual("*", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("abc.domain.com", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
         }
 
@@ -50,21 +50,21 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("http://*.domain.com/123.html");
-            Assert.AreEqual("http://", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("*.domain.com", domain.FullHostName);
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("*.domain.com", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
 
             domain = DomainNameParser.Parse("http://*.abc.domain.com/123.html");
-            Assert.AreEqual("http://", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("*.abc.domain.com", domain.FullHostName);
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("*.abc.domain.com", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
 
             domain = DomainNameParser.Parse("http://*.*.domain.com/123.html");
-            Assert.AreEqual("http://", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("*.*.domain.com", domain.FullHostName);
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("*.*.domain.com", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
         }
 
@@ -74,9 +74,9 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("abc.domain.com/123.html");
-            Assert.AreEqual(string.Empty, domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("abc.domain.com", domain.FullHostName);
+            Assert.AreEqual("*", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("abc.domain.com", domain.HostName);
             Assert.AreEqual("/123.html", domain.PathName);
         }
 
@@ -86,10 +86,10 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("http://abc.domain.com");
-            Assert.AreEqual("http://", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("abc.domain.com", domain.FullHostName);
-            Assert.AreEqual(string.Empty, domain.PathName);
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("domain.com", domain.DomainName);
+            Assert.AreEqual("abc.domain.com", domain.HostName);
+            Assert.AreEqual("/", domain.PathName);
         }
 
         [TestMethod]
@@ -98,10 +98,90 @@ namespace HwaCli.test
             Domain domain;
 
             domain = DomainNameParser.Parse("ms-appx:///abc.domain.com");
-            Assert.AreEqual("ms-appx:///", domain.Protocol);
-            Assert.AreEqual("domain.com", domain.HostName);
-            Assert.AreEqual("abc.domain.com", domain.FullHostName);
-            Assert.AreEqual(string.Empty, domain.PathName);
+            Assert.AreEqual("ms-appx", domain.Scheme);
+            Assert.AreEqual(string.Empty, domain.DomainName);
+            Assert.AreEqual(string.Empty, domain.HostName);
+            Assert.AreEqual("/abc.domain.com", domain.PathName);
+        }
+
+        [TestMethod]
+        public void CanUseCreateURIMethod()
+        {
+            string uri = "http://www.domain.com/";
+            object obj = null;
+
+            DomainNameParser.CreateUri(uri, CreateUriFlags.Uri_CREATE_ALLOW_IMPLICIT_FILE_SCHEME, new IntPtr(0), out obj);
+
+            IUri iUri = (IUri)obj;
+            string domain, host, path;
+
+            iUri.GetDomain(out domain);
+            iUri.GetHost(out host);
+            iUri.GetPath(out path);
+
+            Assert.AreEqual("domain.com", domain);
+            Assert.AreEqual("www.domain.com", host);
+            Assert.AreEqual("/", path);
+        }
+
+        [TestMethod]
+        public void CreateUriParsesWildCardDomain()
+        {
+            string uri = "http://*.domain.com/";
+            object obj = null;
+
+            DomainNameParser.CreateUri(uri, CreateUriFlags.Uri_CREATE_ALLOW_IMPLICIT_FILE_SCHEME, new IntPtr(0), out obj);
+
+            IUri iUri = (IUri)obj;
+            string domain, host, path;
+
+            iUri.GetDomain(out domain);
+            iUri.GetHost(out host);
+            iUri.GetPath(out path);
+
+            Assert.AreEqual("domain.com", domain);
+            Assert.AreEqual("*.domain.com", host);
+            Assert.AreEqual("/", path);
+        }
+
+        [TestMethod]
+        public void CreateUriParsesWildCardProtocol()
+        {
+            string uri = "*://www.domain.com/";
+            object obj = null;
+
+            DomainNameParser.CreateUri(uri, CreateUriFlags.Uri_CREATE_ALLOW_IMPLICIT_FILE_SCHEME, new IntPtr(0), out obj);
+
+            IUri iUri = (IUri)obj;
+            string domain, host, path;
+
+            iUri.GetDomain(out domain);
+            iUri.GetHost(out host);
+            iUri.GetPath(out path);
+
+            Assert.AreEqual("domain.com", domain);
+            Assert.AreEqual("www.domain.com", host);
+            Assert.AreEqual("/", path);
+        }
+
+        [TestMethod]
+        public void CreateUriParsesSLD()
+        {
+            string uri = "http://www.domain.co.uk/";
+            object obj = null;
+
+            DomainNameParser.CreateUri(uri, CreateUriFlags.Uri_CREATE_ALLOW_IMPLICIT_FILE_SCHEME, new IntPtr(0), out obj);
+
+            IUri iUri = (IUri)obj;
+            string domain, host, path;
+
+            iUri.GetDomain(out domain);
+            iUri.GetHost(out host);
+            iUri.GetPath(out path);
+
+            Assert.AreEqual("domain.co.uk", domain);
+            Assert.AreEqual("www.domain.co.uk", host);
+            Assert.AreEqual("/", path);
         }
     }
 }

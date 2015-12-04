@@ -10,11 +10,11 @@ namespace HwaCli.DomainParser
 
     public class Domain
     {
-        public string Protocol { get; set; }
-
-        public string FullHostName { get; set; }
+        public string Scheme { get; set; }
 
         public string HostName { get; set; }
+
+        public string DomainName { get; set; }
 
         public string PathName { get; set; }
     }

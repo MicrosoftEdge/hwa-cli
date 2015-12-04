@@ -68,7 +68,12 @@
     <Compile Include="CliOptions.cs" />
     <Compile Include="Converter.cs" />
     <Compile Include="DomainParser\Domain.cs" />
-    <Compile Include="DomainParser\DomainNameParser.cs" />
+    <Compile Include="DomainParser\DomainNameParser.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="DomainParser\IUri.cs" >
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="IdentityAttributes.cs" />
     <Compile Include="Logging\ConversionException.cs" />
     <Compile Include="Logging\Error.cs" />

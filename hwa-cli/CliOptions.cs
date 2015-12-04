@@ -23,11 +23,6 @@ namespace HwaCli
             HelpText = "Identity GUID")]
         public string IdentityName { get; set; }
 
-        public Guid IdentityNameAsGuid
-        {
-            get { return Guid.Parse(this.IdentityName); }
-        }
-
         [Option('p', "publisherIdentity",
             Required = true,
             HelpText = "Publisher Identity. e.g. \"CN=author\"")]

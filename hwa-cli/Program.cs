@@ -47,7 +47,7 @@ namespace HwaCli
                 var identity = 
                     new IdentityAttributes()
                     {
-                        IdentityName = options.IdentityNameAsGuid,
+                        IdentityName = Guid.Parse(options.IdentityName),
                         PublisherIdentity = options.PublisherIdentity,
                         PublisherDisplayName = options.PublisherDisplayName
                     };

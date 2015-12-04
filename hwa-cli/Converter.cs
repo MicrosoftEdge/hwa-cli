@@ -133,35 +133,35 @@ namespace HwaCli
             foreach (var url in urls)
             {
                 Domain domain = DomainNameParser.Parse(url);
-                var hostname = domain.HostName;
-                var protocol = domain.Protocol;
+                var domainName = domain.DomainName;
+                var protocol = domain.Scheme;
 
-                if (string.IsNullOrEmpty(hostname))
+                if (string.IsNullOrEmpty(domainName))
                 {
                     this.logger.LogError(Errors.DomainParsingFailed, url);
                     throw new ConversionException(string.Format("Domain parsing failed for url: {0}", url));
                 }
 
-                if (protocol == "http://" || protocol == "*://" || string.IsNullOrEmpty(protocol))
+                if (protocol == "http" || protocol == "*" || string.IsNullOrEmpty(protocol))
                 {
                     (new List<string> { "http://", "http://*.", "https://", "https://*." })
                         .ForEach(proto => 
                         {
                             extractedUrls.Add(new MjsAccessWhitelistUrl()
                             {
-                                Url = proto + hostname + "/",
+                                Url = proto + domainName + "/",
                                 ApiAccess = "none"
                             });
                         });
                 }
-                else if (protocol == "https://")
+                else if (protocol == "https")
                 {
                     (new List<string> { "https://", "https://*." })
                          .ForEach(proto => 
                          {
                              extractedUrls.Add(new MjsAccessWhitelistUrl()
                              {
-                                 Url = proto + hostname + "/",
+                                 Url = proto + domainName + "/",
                                  ApiAccess = "none"
                              });
                          });
