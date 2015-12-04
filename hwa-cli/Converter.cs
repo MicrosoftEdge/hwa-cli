@@ -65,6 +65,12 @@ namespace HwaCli
             return xmlManifest;
         }
 
+        /// <summary>
+        /// Converts a <seealso cref="ChromeManifest"/> into <seealso cref="XElement"/> object representing AppxManifest.
+        /// </summary>
+        /// <param name="manifest"></param>
+        /// <param name="identityAttrs"></param>
+        /// <returns><seealso cref="XElement"/></returns>
         private XElement Convert(ChromeManifest manifest, IdentityAttributes identityAttrs)
         {
             var startUrl = manifest.App.Launch.WebUrl.NullIfEmpty() ?? (!string.IsNullOrEmpty(manifest.App.Launch.LocalPath) ? "ms-appx-web:///" + manifest.App.Launch.LocalPath : string.Empty);
@@ -182,12 +188,24 @@ namespace HwaCli
             return this.Convert(w3cManifest, identityAttrs);
         }
 
+        /// <summary>
+        /// Converts a <seealso cref="W3cManifest"/> into <seealso cref="XElement"/> object representing AppxManifest.
+        /// </summary>
+        /// <param name="manifest"></param>
+        /// <param name="identityAttrs"></param>
+        /// <returns><seealso cref="XElement"/></returns>
         private XElement Convert(W3cManifest manifest, IdentityAttributes identityAttrs)
         {
             if (string.IsNullOrEmpty(manifest.StartUrl))
             {
-                this.logger.LogError(Errors.StartUrlNotSpecified, new string[0]);
+                this.logger.LogError(Errors.StartUrlNotSpecified);
                 throw new ConversionException("Start url is not specifed in W3cManifest.");
+            }
+
+            if (manifest.Icons.Count < 1)
+            {
+                this.logger.LogError(Errors.NoIconsFound);
+                throw new ConversionException("Manifest must include at least one icon.");
             }
 
             // Establish assets

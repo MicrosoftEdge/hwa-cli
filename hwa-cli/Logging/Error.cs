@@ -70,5 +70,14 @@ namespace HwaCli.Logging
                 Severity = ERROR,
                 Message = "Domain parsing failed for the following url: {0}"
             };
+
+        public static readonly Error NoIconsFound
+            = new Error()
+            {
+                Code = 6,
+                Type = "NoIconsFound",
+                Severity = ERROR,
+                Message = "Manifest must contain at least one icon."
+            };
     }
 }
