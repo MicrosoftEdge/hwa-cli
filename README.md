@@ -2,7 +2,7 @@
 Command-Line Interface for converting Windows Hosted Web Apps
 
 ## Usage
-`hwa-cli --manifest <manifest-path> --identityName <identity-guid> --publisherIdenty <publisher-identity> --publisherDisplayName <publisher-display-name> --makeAppxPath <path-to-makeappx-utility>`
+`hwa-cli --manifest <manifest-path> --identityName <identity-guid> --publisherIdenty <publisher-identity> --publisherDisplayName <publisher-display-name> --makeAppxPath <path-to-makeappx-utility> --out <path-to-output>`
 
 Options: 
 
@@ -25,3 +25,7 @@ Options:
   `-w`, `--wait`                    (Default: False) Indicates if the program should wait for user input before closing.
 
   `--help`                          Display this help screen.
+  
+  
+## Important
+The path for the output file cannot be in the same directory as the manifest. 
