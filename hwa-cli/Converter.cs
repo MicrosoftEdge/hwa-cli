@@ -68,8 +68,8 @@ namespace HwaCli
         /// <summary>
         /// Converts a <seealso cref="ChromeManifest"/> into <seealso cref="XElement"/> object representing AppxManifest.
         /// </summary>
-        /// <param name="manifest"></param>
-        /// <param name="identityAttrs"></param>
+        /// <param name="manifest"><seealso cref="ChromeManifest"/></param>
+        /// <param name="identityAttrs"><seealso cref="IdentityAttributes"/></param>
         /// <returns><seealso cref="XElement"/></returns>
         private XElement Convert(ChromeManifest manifest, IdentityAttributes identityAttrs)
         {
@@ -196,8 +196,8 @@ namespace HwaCli
         /// <summary>
         /// Converts a <seealso cref="W3cManifest"/> into <seealso cref="XElement"/> object representing AppxManifest.
         /// </summary>
-        /// <param name="manifest"></param>
-        /// <param name="identityAttrs"></param>
+        /// <param name="manifest"><seealso cref="W3cManifest"/></param>
+        /// <param name="identityAttrs"><seealso cref="IdentityAttributes"/></param>
         /// <returns><seealso cref="XElement"/></returns>
         private XElement Convert(W3cManifest manifest, IdentityAttributes identityAttrs)
         {
@@ -221,6 +221,8 @@ namespace HwaCli
 
             foreach (var icon in manifest.Icons)
             {
+                this.ValidatePath(icon.Src);
+
                 if (icon.Sizes == logoStore.Sizes)
                 {
                     logoStore.Src = SanitizeImgPath(icon.Src);
@@ -483,6 +485,15 @@ namespace HwaCli
             };
 
             return resImg;
+        }
+
+        private void ValidatePath(string path)
+        {
+            if (path.Contains(".."))
+            {
+                this.logger.LogError(Errors.RelativePathReferencesParentDirectory, path);
+                throw new ConversionException("Error: " + Errors.RelativePathReferencesParentDirectory.Type);
+            }
         }
     }
 }

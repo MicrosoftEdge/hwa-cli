@@ -79,5 +79,14 @@ namespace HwaCli.Logging
                 Severity = ERROR,
                 Message = "Manifest must contain at least one icon."
             };
+
+        public static readonly Error RelativePathReferencesParentDirectory
+            = new Error()
+            {
+                Code = 7,
+                Type = "RelativePathReferencesParentDirectory",
+                Severity = ERROR,
+                Message = "Relative paths in manifest cannot reference parent directory using \"..\". Violating path: {0}"
+            };
     }
 }
