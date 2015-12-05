@@ -247,62 +247,88 @@ namespace HwaCli
             splashScreen.Src = splashScreen.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(splashScreen), GetWidthFromW3cImage(splashScreen), manifest.Icons).Src;
 
             this.logger.LogMessage("Established assets:");
-            this.logger.LogMessage("\tStore Logo: {0}", logoStore.Src);
-            this.logger.LogMessage("\tSmall Logo: {0}", logoSmall.Src);
-            this.logger.LogMessage("\tLarge Logo: {0}", logoLarge.Src);
-            this.logger.LogMessage("\tSplash Screen: {0}", splashScreen.Src);
+            this.logger.LogMessage("Store Logo: {0}", logoStore.Src);
+            this.logger.LogMessage("Small Logo: {0}", logoSmall.Src);
+            this.logger.LogMessage("Large Logo: {0}", logoLarge.Src);
+            this.logger.LogMessage("Splash Screen: {0}", splashScreen.Src);
 
             // Update XML Template
-            var appxManifest = XElement.Load("AppxManifestTemplate.xml");
-            XNamespace xmlns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
-            XNamespace xmlnsMp = "http://schemas.microsoft.com/appx/2014/phone/manifest";
-            XNamespace xmlnsUap = "http://schemas.microsoft.com/appx/manifest/uap/windows10";
-            XNamespace xmlnsBuild = "http://schemas.microsoft.com/developer/appx/2015/build";
-
-            var identityElem = appxManifest.Descendants(xmlns + "Identity").FirstOrDefault();
-            identityElem.Attribute("Version").Value = "1.0.0.0";
-            identityElem.Attribute("Name").Value = identityAttrs.IdentityName.ToString();
-            identityElem.Attribute("Publisher").Value = identityAttrs.PublisherIdentity;
-
-            appxManifest.Descendants(xmlnsMp + "PhoneIdentity").Attributes("PhoneProductId").FirstOrDefault().Value = Guid.NewGuid().ToString();
-
-            appxManifest.Descendants(xmlns + "DisplayName").FirstOrDefault().Value = manifest.ShortName;
-
-            appxManifest.Descendants(xmlns + "PublisherDisplayName").FirstOrDefault().Value = identityAttrs.PublisherDisplayName;
-
-            appxManifest.Descendants(xmlns + "Logo").FirstOrDefault().Value = logoStore.Src;
-
-            appxManifest.Descendants(xmlns + "Resource").Attributes("Language").FirstOrDefault().Value = !string.IsNullOrEmpty(manifest.Language) ? manifest.Language : "en-us";
-
-            var applicationElem = appxManifest.Descendants(xmlns + "Application").FirstOrDefault();
-            applicationElem.Attribute("Id").Value = SanitizeIdentityName(manifest.ShortName);
-            applicationElem.Attribute("StartPage").Value = manifest.StartUrl;
-
-            var visualElementsElem = applicationElem.Descendants(xmlnsUap + "VisualElements").FirstOrDefault();
-            visualElementsElem.Attribute("DisplayName").Value = manifest.ShortName;
-            visualElementsElem.Attribute("Description").Value = string.IsNullOrEmpty(manifest.Description) ? manifest.Name : manifest.Description;
-            visualElementsElem.Attribute("BackgroundColor").Value = manifest.ThemeColor;
-
-            visualElementsElem.Attribute("Square150x150Logo").Value = logoLarge.Src;
-
-            visualElementsElem.Attribute("Square44x44Logo").Value = logoSmall.Src;
-
-            applicationElem.Descendants(xmlnsUap + "SplashScreen").Attributes("Image").FirstOrDefault().Value = splashScreen.Src;
-
-            applicationElem.Descendants(xmlnsUap + "Rotation").Attributes("Preference").FirstOrDefault().Value = !string.IsNullOrEmpty(manifest.Orientation) ? manifest.Orientation : "portrait";
-
-            var metadataRootElem = appxManifest.Descendants(xmlnsBuild + "Metadata").FirstOrDefault();
-            metadataRootElem.Add(new XElement(xmlnsBuild + "Item", new XAttribute("Name", "GeneratedFrom"), new XAttribute("Value", TOOL_NAME)));
-            metadataRootElem.Add(new XElement(xmlnsBuild + "Item", new XAttribute("Name", "GenerationDate"), new XAttribute("Value", DateTime.UtcNow.ToString())));
-            metadataRootElem.Add(new XElement(xmlnsBuild + "Item", new XAttribute("Name", "ToolVersion"), new XAttribute("Value", TOOL_VERSION)));
+            var appxManifest = XElement.Parse(string.Format(
+                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                <Package xmlns=""http://schemas.microsoft.com/appx/manifest/foundation/windows10"" xmlns:mp=""http://schemas.microsoft.com/appx/2014/phone/manifest"" xmlns:uap=""http://schemas.microsoft.com/appx/manifest/uap/windows10"" xmlns:build=""http://schemas.microsoft.com/developer/appx/2015/build"" IgnorableNamespaces=""uap mp build"">
+                  <Identity Name=""{0}"" Version=""1.0.0.0"" Publisher=""{1}""/>
+                  <mp:PhoneIdentity PhoneProductId=""{2}"" PhonePublisherId=""00000000-0000-0000-0000-000000000000""/>
+                  <build:Metadata>
+                    <build:Item Name=""GeneratedFrom"" Value=""{3}"" />
+                    <build:Item Name=""GenerationDate"" Value=""{4}"" />
+                    <build:Item Name=""ToolVersion"" Value=""{5}"" />
+                  </build:Metadata>
+                  <Properties>
+                    <DisplayName>{6}</DisplayName>
+                    <PublisherDisplayName>{7}</PublisherDisplayName>
+                    <Logo>{8}</Logo>
+                  </Properties>
+                  <Dependencies>
+                    <TargetDeviceFamily Name=""Windows.Universal"" MinVersion=""10.0.10069.0"" MaxVersionTested=""10.0.10069.0""/>
+                  </Dependencies>
+                  <Resources>
+                    <Resource Language=""{9}""/>
+                  </Resources>
+                  <Applications>
+                    <Application Id=""{10}"" StartPage=""{11}"">
+                      <uap:ApplicationContentUriRules>
+                        <!-- Default ACURs to allow for common auth methods -->
+                        <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.facebook.com/"" />
+                        <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.google.com/"" />
+                        <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.live.com/"" />
+                        <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.youtube.com/"" />
+                        <!-- End default ACURs -->
+                      </uap:ApplicationContentUriRules>
+                      <uap:VisualElements DisplayName=""{12}"" Description=""{13}"" BackgroundColor=""{14}"" Square150x150Logo=""{15}"" Square44x44Logo=""{16}"">
+                        <uap:SplashScreen Image=""{17}""/>
+                        <uap:InitialRotationPreference>
+                          <uap:Rotation Preference=""{18}""/>
+                        </uap:InitialRotationPreference>
+                      </uap:VisualElements>
+                    </Application>
+                  </Applications>
+                  <Capabilities>
+                    <Capability Name=""internetClient""/>
+                    <Capability Name=""privateNetworkClientServer""/>
+                    <DeviceCapability Name=""microphone"" />
+                    <DeviceCapability Name=""location"" />
+                    <DeviceCapability Name=""webcam"" />
+                  </Capabilities>
+                </Package>",
+                identityAttrs.IdentityName.ToString(),               // 0,  Package.Identity[Name]
+                identityAttrs.PublisherIdentity,                     // 1,  Package.Identity[Publisher]
+                Guid.NewGuid().ToString(),                           // 2,  Package.PhoneIdentity[PhoneProductId]
+                TOOL_NAME,                                           // 3,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
+                DateTime.UtcNow.ToString(),                          // 4,  Package.Metadata.Item[Name="GenerationDate"][Value]
+                TOOL_VERSION,                                        // 5,  Package.Metadata.Item[Name="ToolVersion"][Value]
+                manifest.ShortName,                                  // 6,  Package.Properties.DisplayName
+                identityAttrs.PublisherDisplayName,                  // 7,  Package.Properties.PublisherDisplayName
+                logoStore.Src,                                       // 8,  Package.Properties.Logo
+                manifest.Language.NullIfEmpty() ?? "en-us",          // 9,  Package.Resources.Resource[Language]
+                SanitizeIdentityName(manifest.ShortName),            // 10, Package.Applications.Application[Id]
+                manifest.StartUrl,                                   // 11, Package.Applications.Application[StartPage]
+                manifest.ShortName,                                  // 12, Package.VisualElements[DisplayName]
+                manifest.Description.NullIfEmpty() ?? manifest.Name, // 13, Package.VisualElements[Description]
+                manifest.ThemeColor,                                 // 14, Package.VisualElements[BackgroundColor]
+                logoLarge.Src,                                       // 15, Package.VisualElements[Square150x150Logo]
+                logoSmall.Src,                                       // 16, Package.VisualElements[Square44x44Logo]
+                splashScreen.Src,                                    // 17, Package.VisualElements.SplashScreen[Image]
+                manifest.Orientation.NullIfEmpty() ?? "portrait"     // 18, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
+                ));
 
             // Add ACURs
-            var acurs = applicationElem.Descendants(xmlnsUap + "ApplicationContentUriRules").FirstOrDefault();
+            XNamespace xmlns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
+            XNamespace xmlnsUap = "http://schemas.microsoft.com/appx/manifest/uap/windows10";
+            XElement acurs = appxManifest.Descendants(xmlns + "Application").Descendants(xmlnsUap + "ApplicationContentUriRules").FirstOrDefault();
 
-            var domain = DomainNameParser.Parse(manifest.StartUrl);
-
+            Domain domain = DomainNameParser.Parse(manifest.StartUrl);
             string baseUrlPattern = domain.Scheme + "://" + domain.HostName;
-            var baseApiAccess = "none";
+            string baseApiAccess = "none";
 
             if (!string.IsNullOrEmpty(manifest.Scope))
             {
