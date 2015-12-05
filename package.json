@@ -8,18 +8,18 @@
     "hwa": "main.js"
   },
   "author": {
-    "name": "Sean Xu",
-    "url": "https://github.com/jseanxu"
+    "name": "Zack Hall",
+    "url": "https://github.com/zackhall"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jseanxu/hwa-cli"
+    "url": "https://github.com/MicrosoftEdge/hwa-cli"
   },
-  "bugs": "https://github.com/jseanxu/hwa-cli/issues",
+  "bugs": "https://github.com/MicrosoftEdge/hwa-cli/issues",
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/jseanxu/appx-cli/blob/master/LICENSE"
+      "url": "https://github.com/MicrosoftEdge/hwa-cli/blob/master/LICENSE"
     }
   ],
   "dependencies": {
