@@ -217,7 +217,7 @@ namespace HwaCli
             W3cImage logoStore = new W3cImage() { Sizes = "50x50" }, 
                      logoSmall = new W3cImage() { Sizes = "44x44" }, 
                      logoLarge = new W3cImage() { Sizes = "150x150" }, 
-                     splashScreen = new W3cImage() { Sizes = "300x620" };
+                     splashScreen = new W3cImage() { Sizes = "620x300" };
 
             foreach (var icon in manifest.Icons)
             {
@@ -254,7 +254,7 @@ namespace HwaCli
 
             // Update XML Template
             var appxManifest = XElement.Parse(string.Format(
-                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes"" ?>
                 <Package xmlns=""http://schemas.microsoft.com/appx/manifest/foundation/windows10"" xmlns:mp=""http://schemas.microsoft.com/appx/2014/phone/manifest"" xmlns:uap=""http://schemas.microsoft.com/appx/manifest/uap/windows10"" xmlns:build=""http://schemas.microsoft.com/developer/appx/2015/build"" IgnorableNamespaces=""uap mp build"">
                   <Identity Name=""{0}"" Version=""1.0.0.0"" Publisher=""{1}""/>
                   <mp:PhoneIdentity PhoneProductId=""{2}"" PhonePublisherId=""00000000-0000-0000-0000-000000000000""/>
@@ -327,7 +327,7 @@ namespace HwaCli
             XElement acurs = appxManifest.Descendants(xmlns + "Application").Descendants(xmlnsUap + "ApplicationContentUriRules").FirstOrDefault();
 
             Domain domain = DomainNameParser.Parse(manifest.StartUrl);
-            string baseUrlPattern = domain.Scheme + "://" + domain.HostName;
+            string baseUrlPattern = domain.Scheme + "://" + domain.HostName + "/";
             string baseApiAccess = "none";
 
             if (!string.IsNullOrEmpty(manifest.Scope))
