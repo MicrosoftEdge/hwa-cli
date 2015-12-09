@@ -464,6 +464,8 @@ namespace HwaCli
                 if (delta < prevDelta)
                 {
                     result = img;
+                    prevDeltaH = deltaH;
+                    prevDeltaW = deltaW;
                 }
 
                 prevDeltaH = deltaH;
