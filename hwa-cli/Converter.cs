@@ -139,7 +139,7 @@ namespace HwaCli
             var extractedUrls = new List<MjsAccessWhitelistUrl>();
             var urls = new List<string>() { startUrl };
 
-            urls = urls.Concat(manifest.App.Urls).ToList();
+            urls = urls.Concat(manifest.App.Urls ?? new string[] { }).ToList();
 
             foreach (var url in urls)
             {
