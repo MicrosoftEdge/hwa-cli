@@ -467,9 +467,6 @@ namespace HwaCli
                     prevDeltaH = deltaH;
                     prevDeltaW = deltaW;
                 }
-
-                prevDeltaH = deltaH;
-                prevDeltaW = deltaW;
             }
 
             return this.ResizeAndAddImage(result, h, w);
