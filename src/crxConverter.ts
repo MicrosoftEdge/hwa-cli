@@ -168,13 +168,13 @@ export function convert(argv: any, src: string, dest: string) {
                     w3cManifest,
                     fs.readFileSync(p.join(__dirname, "../../templates/w3c-AppxManifest-template.xml"), "utf8"),
                     {
-                        appDisplayName: answers.useCurrentName ? w3cManifest.short_name : answers.appDisplayName,
-                        // identityName: answers.identityName,
-                        identityName: answers.identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                        // publisherDisplayName: answers.publisherDisplayName,
-                        publisherDisplayName: answers.publisherDisplayName || "AUTHOR_NAME",
-                        // publisherIdentity: answers.publisherIdentity
-                        publisherIdentity: answers.publisherIdentity || "CN=AUTHOR_NAME"
+                        // appDisplayName: answers.useCurrentName ? w3cManifest.short_name : answers.appDisplayName,
+                        identityName: answers.identityName,
+                        // identityName: answers.identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        publisherDisplayName: answers.publisherDisplayName,
+                        // publisherDisplayName: answers.publisherDisplayName || "AUTHOR_NAME",
+                        publisherIdentity: answers.publisherIdentity
+                        // publisherIdentity: answers.publisherIdentity || "CN=AUTHOR_NAME"
                     }, [
                         { name: "GeneratedFrom", value: "HWA-CLI" },
                         { name: "GenerationDate", value: new Date().toUTCString() },
