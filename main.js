@@ -14,26 +14,26 @@ var argv = require('yargs')
 			.help('help')
 			.argv;
 	})
-	.command('deploy', 'Registers and launches an AppxManifest or URL.', function(yargs) {
+	.command('deploy', '[EXPERIMENTAL] Registers and launches an AppxManifest or URL.', function(yargs) {
 		argv = yargs
 			.usage('Usage: $0 deploy <url|AppxManifest>')
 			.demand(2, 'You must supply a path to an AppxManifest or url to deploy.')
 			.help('help')
 			.argv;
 	})
-	.command('restart', 'Starts or restarts the previous Appx deployed using this tool.', function(yargs) {
+	.command('restart', '[EXPERIMENTAL] Starts or restarts the previous Appx deployed using this tool.', function(yargs) {
 		argv = yargs
 			.usage('Usage: $0 restart')
 			.help('help')
 			.argv;
 	})
-	.command('clearsession', 'Clears the session file, causing the next deploy to re-provision a server.', function(yargs) {
+	.command('clearsession', '[EXPERIMENTAL] Clears the session file, causing the next deploy to re-provision a server.', function(yargs) {
 		argv = yargs
 			.usage('Usage: $0 clearsession')
 			.help('help')
 			.argv;
 	})
-	.command('exit', 'Disconnects the provisioned HWA-Server.', function(yargs) {
+	.command('exit', '[EXPERIMENTAL] Disconnects the provisioned HWA-Server.', function(yargs) {
 		argv = yargs
 			.usage('Usage: $0 exit')
 			.help('help')
