@@ -14,82 +14,62 @@ namespace HwaCli.Logging
 
     public class Logger
     {
-        private static string outputPath;
+        private static FileLogger fileLogger;
 
-        private static bool outputToFile;
-
-        private static StreamWriter fileStreamWriter;
-
-        private static LoggerOutputFile outputFile;
-
-        private static Logger instance = null;
-
-        private Logger(string filePath)
-        {
-            Logger.OutputToConsole = true;
-            Logger.Verbose = false;
-
-            Logger.outputToFile = true;
-            Logger.outputPath = filePath;
-            Logger.outputFile = new LoggerOutputFile();
-            Logger.fileStreamWriter = File.Exists(filePath) ? File.AppendText(filePath) : File.CreateText(filePath);
-        }
-
-        private Logger()
-        {
-            Logger.outputToFile = false;
-            Logger.OutputToConsole = true;
-            Logger.Verbose = false;
-        }
+        private static ConsoleLogger consoleLogger;
 
         public static bool OutputToConsole { get; set; }
 
         public static bool Verbose { get; set; }
 
-        public static void CreateLogger(string filePath)
+        public static void Initialize(string outputFilePath)
         {
-            Logger.instance = Logger.instance ?? new Logger(filePath);
+            if (!string.IsNullOrEmpty(outputFilePath))
+            {
+                Logger.fileLogger = new FileLogger(outputFilePath);
+            }
+
+            Logger.consoleLogger = new ConsoleLogger();
+        }
+        private static void CheckLoggerInitialization()
+        {
+            if (Logger.consoleLogger == null && Logger.fileLogger == null)
+            {
+                throw new Exception("Logger not ready; call CreateLogger before using.");
+            }
         }
 
-        public static void CreateLogger()
-        {
-            Logger.instance = Logger.instance ?? new Logger();
-        }
 
         public static void LogError(Error error, params string[] parameters)
         {
-            Logger.CheckLoggerInstance();
+            Logger.CheckLoggerInitialization();
 
             error.Params = parameters;
             error.Message = string.Format(error.Message, parameters);
 
-            string errorString = JsonConvert.SerializeObject(error, Formatting.Indented);
-
-            if (Logger.OutputToConsole)
+            if (Logger.fileLogger != null)
             {
-                Console.WriteLine(errorString);
+                Logger.fileLogger.LogError(error);
             }
 
-            if (Logger.outputToFile)
+            if (Logger.consoleLogger != null)
             {
-                Logger.outputFile.Errors.Add(error);
-                Logger.WriteOutputFile();
+                Logger.consoleLogger.LogError(error);
             }
         }
 
         public static void LogMessage(string message)
         {
-            Logger.CheckLoggerInstance();
+            Logger.CheckLoggerInitialization();
 
-            if (Logger.OutputToConsole)
+            if (Logger.fileLogger != null)
             {
-                Console.WriteLine(message);
+                Logger.fileLogger.LogMessage(message);
             }
 
-            if (Logger.outputToFile)
+            if (Logger.consoleLogger != null)
             {
-                Logger.outputFile.Messages.Add(message);
-                Logger.WriteOutputFile();
+                Logger.consoleLogger.LogMessage(message);
             }
         }
 
@@ -115,16 +95,54 @@ namespace HwaCli.Logging
             }
         }
 
-        private static void WriteOutputFile()
+        class FileLogger
         {
-            File.WriteAllText(Logger.outputPath, JsonConvert.SerializeObject(Logger.outputFile, Formatting.Indented));
+            private LoggerOutputFile outputFile;
+            private string outputPath;
+
+            public FileLogger(string outputPath)
+            {
+                this.outputFile = new LoggerOutputFile();
+                this.outputPath = outputPath;
+            }
+
+            public void LogError(Error error)
+            {
+                this.outputFile.Errors.Add(error);
+                this.WriteOutputFile();
+            }
+
+            public void LogMessage(string message)
+            {
+                this.outputFile.Messages.Add(message);
+                this.WriteOutputFile();
+            }
+
+            private void WriteOutputFile()
+            {
+                try
+                {
+                    File.WriteAllText(this.outputPath, JsonConvert.SerializeObject(this.outputFile, Formatting.Indented));
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine(string.Format("Unable to write to output file for logging at: {0}", this.outputPath));
+                    throw;
+                }
+            }
         }
 
-        private static void CheckLoggerInstance()
+        class ConsoleLogger
         {
-            if (Logger.instance == null)
+            public void LogError(Error error)
             {
-                throw new Exception("Logger not instantiated.");
+                var message = JsonConvert.SerializeObject(error, Formatting.Indented);
+                Console.WriteLine(message);
+            }
+
+            public void LogMessage(string message)
+            {
+                Console.WriteLine(message);
             }
         }
     }
