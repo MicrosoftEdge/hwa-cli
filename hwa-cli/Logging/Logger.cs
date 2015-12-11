@@ -39,13 +39,9 @@ namespace HwaCli.Logging
             }
         }
 
-
-        public static void LogError(Error error, params string[] parameters)
+        public static void LogError(Error error)
         {
             Logger.CheckLoggerInitialization();
-
-            error.Params = parameters;
-            error.Message = string.Format(error.Message, parameters);
 
             if (Logger.fileLogger != null)
             {
@@ -56,6 +52,14 @@ namespace HwaCli.Logging
             {
                 Logger.consoleLogger.LogError(error);
             }
+        }
+
+        public static void LogError(Error error, params string[] parameters)
+        {
+            error.Params = parameters;
+            error.Message = string.Format(error.Message, parameters);
+
+            Logger.LogError(error);
         }
 
         public static void LogMessage(string message)

@@ -75,8 +75,7 @@ namespace HwaCli
             
             if (string.IsNullOrEmpty(startUrl))
             {
-                Logger.LogError(Errors.LaunchUrlNotSpecified);
-                throw new ConversionException("Start url is not specifed in ChromeManifest.");
+                throw new ConversionException(Errors.LaunchUrlNotSpecified);
             }
 
             var w3cManifest = new W3cManifest()
@@ -142,8 +141,7 @@ namespace HwaCli
 
                 if (string.IsNullOrEmpty(domainName))
                 {
-                    Logger.LogError(Errors.DomainParsingFailed, url);
-                    throw new ConversionException(string.Format("Domain parsing failed for url: {0}", url));
+                    throw new ConversionException(Errors.DomainParsingFailed, url);
                 }
 
                 if (protocol == "http" || protocol == "*" || string.IsNullOrEmpty(protocol))
@@ -170,8 +168,7 @@ namespace HwaCli
                 }
                 else
                 {
-                    Logger.LogError(Errors.UnsupportedProtocolInAcur, protocol);
-                    throw new ConversionException("Unsupported protocol found in ACUR.");
+                    throw new ConversionException(Errors.UnsupportedProtocolInAcur, protocol);
                 }
 
                 extractedUrls.Add(new MjsAccessWhitelistUrl
@@ -199,14 +196,12 @@ namespace HwaCli
         {
             if (string.IsNullOrEmpty(manifest.StartUrl))
             {
-                Logger.LogError(Errors.StartUrlNotSpecified);
-                throw new ConversionException("Start url is not specifed in W3cManifest.");
+                throw new ConversionException(Errors.StartUrlNotSpecified);
             }
 
             if (manifest.Icons.Count < 1)
             {
-                Logger.LogError(Errors.NoIconsFound);
-                throw new ConversionException("Manifest must include at least one icon.");
+                throw new ConversionException(Errors.NoIconsFound);
             }
 
             // Establish assets
@@ -455,8 +450,8 @@ namespace HwaCli
                 var deltaW = Math.Abs(imgW - w);
                 var deltaH = Math.Abs(imgH - h);
 
-                var prevDelta = Math.Min(prevDeltaH, prevDeltaW);
-                var delta = Math.Min(deltaH, deltaW);
+                var prevDelta = Math.Max(prevDeltaH, prevDeltaW);
+                var delta = Math.Max(deltaH, deltaW);
 
                 if (delta < prevDelta)
                 {
@@ -516,14 +511,12 @@ namespace HwaCli
         {
             if (path.Contains(".."))
             {
-                Logger.LogError(Errors.RelativePathReferencesParentDirectory, path);
-                throw new ConversionException("Error: " + Errors.RelativePathReferencesParentDirectory.Type);
+                throw new ConversionException(Errors.RelativePathReferencesParentDirectory, path);
             }
 
             if (Path.IsPathRooted(path))
             {
-                Logger.LogError(Errors.RelativePathExpected, path);
-                throw new ConversionException("Error: " + Errors.RelativePathExpected.Type);
+                throw new ConversionException(Errors.RelativePathExpected, path);
             }
         }
     }

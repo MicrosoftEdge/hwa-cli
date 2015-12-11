@@ -54,9 +54,9 @@ namespace HwaCli
                         appxManifest = converter.Convert(File.ReadAllText(options.InputFile), identity);
                         appxManifest.Save(rootPath + "\\" + "AppxManifest.xml");
                     }
-                    catch
+                    catch (ConversionException ex)
                     {
-                        Logger.LogMessage("Errors encountered, failed to create Appx package.");
+                        Logger.LogError(ex.Error);
                     }
 
                     if (appxManifest != null && !string.IsNullOrEmpty(options.MakeAppxPath))

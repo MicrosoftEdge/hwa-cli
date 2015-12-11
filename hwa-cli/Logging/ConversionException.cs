@@ -10,16 +10,29 @@ namespace HwaCli.Logging
 
     public class ConversionException : Exception
     {
-        public ConversionException()
+        private Error error; 
+
+        private ConversionException()
         {
         }
 
-        public ConversionException(string message) : base(message)
+        private ConversionException(string message) : base(message)
         {
         }
 
-        public ConversionException(string message, Exception inner) : base(message, inner)
+        private ConversionException(string message, Exception inner) : base(message, inner)
         {
+        }
+
+        public ConversionException(Error error, params string[] parameters)
+        {
+            error.Message = string.Format(error.Message, parameters);
+            this.error = error;
+        }
+
+        public Error Error
+        {
+            get { return this.error; }
         }
     }
 }
