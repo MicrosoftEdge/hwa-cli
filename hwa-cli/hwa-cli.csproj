@@ -74,6 +74,7 @@
     <Compile Include="IdentityAttributes.cs" />
     <Compile Include="Logging\ConversionException.cs" />
     <Compile Include="Logging\Error.cs" />
+    <Compile Include="Logging\LoggerException.cs" />
     <Compile Include="Logging\LoggerOutputFile.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Manifest\ChromeApp.cs" />

@@ -33,7 +33,7 @@ namespace HwaCli.Logging
         {
             if (Logger.consoleLogger == null && Logger.fileLogger == null)
             {
-                throw new Exception("Logger not ready; call CreateLogger before using.");
+                throw new LoggerException("Logger not ready; call CreateLogger before using.");
             }
         }
 
