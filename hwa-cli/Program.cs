@@ -24,7 +24,6 @@ namespace HwaCli
                 {
                     // Create Logger
                     Logger.Initialize(options.OutputFilePath);
-                    Logger.OutputToConsole = options.OutputToConsole;
                     Logger.Verbose = options.Verbose;
 
                     Logger.LogMessage("Manifest: {0}", options.InputFile);

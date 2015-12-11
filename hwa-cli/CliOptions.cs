@@ -43,12 +43,6 @@ namespace HwaCli
             HelpText = "Path to output file for errors and messages.")]
         public string OutputFilePath { get; set; }
 
-        [Option('c', "outputToConsole",
-            Required = false,
-            DefaultValue = true,
-            HelpText = "Indicates if the program should output to console.")]
-        public bool OutputToConsole { get; set; }
-
         [Option('v', "verbose",
             Required = false,
             DefaultValue = false,

@@ -12,14 +12,12 @@ namespace HwaCli.Logging
 
     using Newtonsoft.Json;
 
-    public class Logger
+    public static class Logger
     {
         private static FileLogger fileLogger;
 
         private static ConsoleLogger consoleLogger;
-
-        public static bool OutputToConsole { get; set; }
-
+        
         public static bool Verbose { get; set; }
 
         public static void Initialize(string outputFilePath)
