@@ -14,121 +14,117 @@ namespace HwaCli.Logging
 
     public class Logger
     {
-        private string outputPath;
+        private static string outputPath;
 
-        private bool outputToFile;
+        private static bool outputToFile;
 
-        private StreamWriter logger;
+        private static StreamWriter fileStreamWriter;
 
-        private IList<Error> errorBuffer;
+        private static LoggerOutputFile outputFile;
 
-        private IList<string> messageBuffer;
+        private static Logger instance = null;
 
-        public Logger(string filePath)
+        private Logger(string filePath)
         {
-            this.OutputToConsole = true;
-            this.Verbose = false;
+            Logger.OutputToConsole = true;
+            Logger.Verbose = false;
 
-            this.outputToFile = true;
-            this.outputPath = filePath;
-
-            if (!File.Exists(filePath))
-            {
-                this.logger = new StreamWriter(filePath);
-            }
-            else
-            {
-                this.logger = File.AppendText(filePath);
-            }
-
-            this.errorBuffer = new List<Error>();
-            this.messageBuffer = new List<string>();
+            Logger.outputToFile = true;
+            Logger.outputPath = filePath;
+            Logger.outputFile = new LoggerOutputFile();
+            Logger.fileStreamWriter = File.Exists(filePath) ? File.AppendText(filePath) : File.CreateText(filePath);
         }
 
-        public Logger()
+        private Logger()
         {
-            this.OutputToConsole = true;
-            this.Verbose = false;
-            this.outputToFile = false;
+            Logger.outputToFile = false;
+            Logger.OutputToConsole = true;
+            Logger.Verbose = false;
         }
 
-        public bool OutputToConsole { get; set; }
+        public static bool OutputToConsole { get; set; }
 
-        public bool Verbose { get; set; }
+        public static bool Verbose { get; set; }
 
-        public void LogError(Error error, params string[] parameters)
+        public static void CreateLogger(string filePath)
         {
+            Logger.instance = Logger.instance ?? new Logger(filePath);
+        }
+
+        public static void CreateLogger()
+        {
+            Logger.instance = Logger.instance ?? new Logger();
+        }
+
+        public static void LogError(Error error, params string[] parameters)
+        {
+            Logger.CheckLoggerInstance();
+
             error.Params = parameters;
             error.Message = string.Format(error.Message, parameters);
 
             string errorString = JsonConvert.SerializeObject(error, Formatting.Indented);
 
-            if (this.OutputToConsole)
+            if (Logger.OutputToConsole)
             {
                 Console.WriteLine(errorString);
             }
 
-            if (this.outputToFile)
+            if (Logger.outputToFile)
             {
-                this.errorBuffer.Add(error);
+                Logger.outputFile.Errors.Add(error);
+                Logger.WriteOutputFile();
             }
         }
 
-        public void LogMessage(string message)
+        public static void LogMessage(string message)
         {
-            if (this.OutputToConsole)
+            Logger.CheckLoggerInstance();
+
+            if (Logger.OutputToConsole)
             {
                 Console.WriteLine(message);
             }
 
-            if (this.outputToFile)
+            if (Logger.outputToFile)
             {
-                this.messageBuffer.Add(message);
+                Logger.outputFile.Messages.Add(message);
+                Logger.WriteOutputFile();
             }
         }
 
-        public void LogMessage(string format, params string[] values)
+        public static void LogMessage(string format, params string[] values)
         {
             var message = string.Format(format, values);
-            this.LogMessage(message);
+            Logger.LogMessage(message);
         }
 
-        public void LogVerbose(string message)
+        public static void LogVerbose(string message)
         {
-            if (this.Verbose)
+            if (Logger.Verbose)
             {
-                this.LogMessage(message);
+                Logger.LogMessage(message);
             }
         }
 
-        public void LogVerbose(string format, params string[] values)
+        public static void LogVerbose(string format, params string[] values)
         {
-            if (this.Verbose)
+            if (Logger.Verbose)
             {
-                this.LogMessage(format, values);
+                Logger.LogMessage(format, values);
             }
         }
 
-        public void Close()
-        { 
-            if (this.outputToFile)
+        private static void WriteOutputFile()
+        {
+            File.WriteAllText(Logger.outputPath, JsonConvert.SerializeObject(Logger.outputFile, Formatting.Indented));
+        }
+
+        private static void CheckLoggerInstance()
+        {
+            if (Logger.instance == null)
             {
-                using (JsonWriter jw = new JsonTextWriter(this.logger))
-                {
-                    jw.Formatting = Formatting.Indented;
-
-                    var outputFile = new ErrorOutputFile() { Errors = this.errorBuffer, Messages = this.messageBuffer };
-
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Serialize(jw, outputFile);
-                }
-
-                this.logger.Close();
-
-                if (this.OutputToConsole)
-                {
-                    Console.WriteLine("Wrote output to file at: ", this.outputPath);
-                } 
+                throw new Exception("Logger not instantiated.");
             }
         }
     }

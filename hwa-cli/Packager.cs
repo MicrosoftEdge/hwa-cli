@@ -13,12 +13,12 @@ namespace HwaCli
 
     public class Packager
     {
-        public static void PackageAsAppx(Logger logger, string makeAppxPath, string rootPath, string packageName = "App.appx")
+        public static void PackageAsAppx(string makeAppxPath, string rootPath, string packageName = "App.appx")
         {
             var startInfo = new ProcessStartInfo()
             {
                 FileName = makeAppxPath,
-                Arguments = string.Format("pack /o /d {0} /p {1}", rootPath, Path.Combine(rootPath, packageName)),
+                Arguments = string.Format("pack /o /d \"{0}\" /p {1}", rootPath, Path.Combine(rootPath, packageName)),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
@@ -30,16 +30,20 @@ namespace HwaCli
                 {
                     while (!appxProc.StandardOutput.EndOfStream)
                     {
-                        logger.LogVerbose(appxProc.StandardOutput.ReadLine());
+                        Logger.LogVerbose(appxProc.StandardOutput.ReadLine());
                     }
 
                     appxProc.WaitForExit();
+
+                    if (appxProc.ExitCode != 0)
+                    {
+                        Logger.LogError(Errors.AppxCreationFailed, "MakeAppx process exited with non-zero code.");
+                    }
                 }
             }
             catch
             {
-                logger.LogMessage("Errors encountered, failed to create Appx package.");
-                logger.LogError(Errors.AppxCreationFailed);
+                Logger.LogError(Errors.AppxCreationFailed, "Process for MakeAppx threw an exception.");
             }
         }
     }

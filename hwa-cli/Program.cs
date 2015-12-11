@@ -11,72 +11,75 @@ namespace HwaCli
     using System.Xml.Linq;
 
     using HwaCli.Logging;
-
+    
     public class Program
     {
         public static void Main(string[] args)
         {
-            var options = new CliOptions();
-
-            if (CommandLine.Parser.Default.ParseArguments(args, options))
+            try
             {
-                Console.WriteLine("Manifest: {0}", options.InputFile);
-                Console.WriteLine("Identity Name: {0}", options.IdentityName);
-                Console.WriteLine("Publisher Identity: {0}", options.PublisherIdentity);
-                Console.WriteLine("Publisher Display Name: {0}", options.PublisherDisplayName);
+                var options = new CliOptions();
 
-                Logger logger;
-                if (!string.IsNullOrEmpty(options.OutputFilePath))
+                if (CommandLine.Parser.Default.ParseArguments(args, options))
                 {
-                    logger = new Logger(options.OutputFilePath);
-                }
-                else
-                {
-                    logger = new Logger();
-                }
-
-                logger.OutputToConsole = options.OutputToConsole;
-                logger.Verbose = options.Verbose;
-
-                if (!File.Exists(options.InputFile))
-                {
-                    logger.LogError(Errors.ManifestNotFound, new string[] { options.InputFile });
-                }
-
-                DirectoryInfo rootPath = Directory.GetParent(options.InputFile);
-                var identity = 
-                    new IdentityAttributes()
+                    // Create Logger
+                    if (string.IsNullOrEmpty(options.OutputFilePath))
                     {
-                        IdentityName = Guid.Parse(options.IdentityName),
-                        PublisherIdentity = options.PublisherIdentity,
-                        PublisherDisplayName = options.PublisherDisplayName
-                    };
-                var converter = new Converter(logger, rootPath);
+                        Logger.CreateLogger();
+                    }
+                    else
+                    {
+                        Logger.CreateLogger(options.OutputFilePath);
+                    }
 
-                XElement appxManifest = null;
+                    Logger.LogMessage("Manifest: {0}", options.InputFile);
+                    Logger.LogMessage("Identity Name: {0}", options.IdentityName);
+                    Logger.LogMessage("Publisher Identity: {0}", options.PublisherIdentity);
+                    Logger.LogMessage("Publisher Display Name: {0}", options.PublisherDisplayName);
 
-                try
-                {
-                    appxManifest = converter.Convert(File.ReadAllText(options.InputFile), identity);
-                    appxManifest.Save(rootPath + "\\" + "AppxManifest.xml");
+                    if (!File.Exists(options.InputFile))
+                    {
+                        Logger.LogError(Errors.ManifestNotFound, new string[] { options.InputFile });
+                    }
+
+                    DirectoryInfo rootPath = Directory.GetParent(options.InputFile);
+                    var identity =
+                        new IdentityAttributes()
+                        {
+                            IdentityName = Guid.Parse(options.IdentityName),
+                            PublisherIdentity = options.PublisherIdentity,
+                            PublisherDisplayName = options.PublisherDisplayName
+                        };
+                    var converter = new Converter(rootPath);
+
+                    XElement appxManifest = null;
+
+                    try
+                    {
+                        appxManifest = converter.Convert(File.ReadAllText(options.InputFile), identity);
+                        appxManifest.Save(rootPath + "\\" + "AppxManifest.xml");
+                    }
+                    catch
+                    {
+                        Logger.LogMessage("Errors encountered, failed to create Appx package.");
+                    }
+
+                    if (appxManifest != null && !string.IsNullOrEmpty(options.MakeAppxPath))
+                    {
+                        Packager.PackageAsAppx(options.MakeAppxPath, rootPath.ToString());
+                    }
+
+                    if (options.Wait)
+                    {
+                        Console.WriteLine("Press any key to exit...");
+                        Console.ReadKey();
+                    }
                 }
-                catch
-                {
-                    logger.LogMessage("Errors encountered, failed to create Appx package.");
-                }
-
-                if (appxManifest != null && !string.IsNullOrEmpty(options.MakeAppxPath))
-                {
-                    Packager.PackageAsAppx(logger, options.MakeAppxPath, rootPath.ToString());
-                }
-
-                if (options.Wait)
-                {
-                    Console.WriteLine("Press any key to exit...");
-                    Console.ReadKey();
-                }
-
-                logger.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+                throw ex;
             }
         }
     }

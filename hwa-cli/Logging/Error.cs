@@ -31,7 +31,7 @@ namespace HwaCli.Logging
             {
                 Code = 1,
                 Type = "ManifestNotFound",
-                Severity = "ERROR",
+                Severity = ERROR,
                 Message = "Manifest could not be found at {0}."
             };
 
@@ -40,7 +40,7 @@ namespace HwaCli.Logging
             {
                 Code = 2,
                 Type = "StartUrlNotSpecified",
-                Severity = "ERROR",
+                Severity = ERROR,
                 Message = "The W3C manifest must specify a start_url."
             };
 
@@ -50,7 +50,7 @@ namespace HwaCli.Logging
                 Code = 3,
                 Type = "AppxCreationFailed",
                 Severity = ERROR,
-                Message = "Error while running MakeAppx.exe to create Appx package."
+                Message = "Error while running MakeAppx.exe to create Appx package. Reason: {0}"
             };
 
         public static readonly Error LaunchUrlNotSpecified
@@ -87,6 +87,24 @@ namespace HwaCli.Logging
                 Type = "RelativePathReferencesParentDirectory",
                 Severity = ERROR,
                 Message = "Relative paths in manifest cannot reference parent directory using \"..\". Violating path: {0}"
+            };
+
+        public static readonly Error RelativePathExpected
+            = new Error()
+            {
+                Code = 8,
+                Type = "RelativePathExpected",
+                Severity = ERROR,
+                Message = "A relative path was expected, but instead found an abosolute path: {0}"
+            };
+
+        public static readonly Error UnsupportedProtocolInAcur
+            = new Error()
+            {
+                Code = 9,
+                Type = "UnsupportedProtocolInAcur",
+                Severity = ERROR,
+                Message = "Expected protocol to be in ['http', 'https', '*']. Instead protocol was '{0}'."
             };
     }
 }

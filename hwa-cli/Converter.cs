@@ -24,22 +24,15 @@ namespace HwaCli
 
     public class Converter
     {
-        private const string TOOL_NAME = "Store .web Tool";
-
-        private const string TOOL_VERSION = "1.0";
-
-        private Logger logger;
-
         private DirectoryInfo rootPath;
 
-        public Converter(Logger logger, DirectoryInfo rootPath)
+        public Converter(DirectoryInfo rootPath)
         {
-            this.logger = logger;
             this.rootPath = rootPath;
         }
 
         /// <summary>
-        ///  This method takes an anonymous object, determines type of manifest, and converts it to Appx
+        ///  This method takes a JSON string, determines type of manifest, and converts it to Appx
         /// </summary>
         /// <param name="manifestJson">string containing the JSON metadata for the web app manifest</param>
         /// <param name="identity"><seealso cref="IdentityAttributes"/> object defining the identity of the Appx manifest publisher</param>
@@ -82,7 +75,7 @@ namespace HwaCli
             
             if (string.IsNullOrEmpty(startUrl))
             {
-                this.logger.LogError(Errors.LaunchUrlNotSpecified);
+                Logger.LogError(Errors.LaunchUrlNotSpecified);
                 throw new ConversionException("Start url is not specifed in ChromeManifest.");
             }
 
@@ -112,7 +105,7 @@ namespace HwaCli
                     foreach (var property in properties)
                     {
                         var value = property.GetValue(w3cManifest);
-                        if (value != null && value.GetType() == typeof(string) && (((string)value).ToLowerInvariant().IndexOf("__msg_") == 0))
+                        if (value != null && value.GetType() == typeof(string) && ((string)value).ToLowerInvariant().StartsWith("__msg_"))
                         {
                             foreach (var obj in msgs)
                             {
@@ -149,33 +142,36 @@ namespace HwaCli
 
                 if (string.IsNullOrEmpty(domainName))
                 {
-                    this.logger.LogError(Errors.DomainParsingFailed, url);
+                    Logger.LogError(Errors.DomainParsingFailed, url);
                     throw new ConversionException(string.Format("Domain parsing failed for url: {0}", url));
                 }
 
                 if (protocol == "http" || protocol == "*" || string.IsNullOrEmpty(protocol))
                 {
-                    (new List<string> { "http://", "http://*.", "https://", "https://*." })
-                        .ForEach(proto => 
+                    foreach (var proto in new string[] { "http://", "http://*.", "https://", "https://*." })
+                    {
+                        extractedUrls.Add(new MjsAccessWhitelistUrl()
                         {
-                            extractedUrls.Add(new MjsAccessWhitelistUrl()
-                            {
-                                Url = proto + domainName + "/",
-                                ApiAccess = "none"
-                            });
+                            Url = proto + domainName + "/",
+                            ApiAccess = "none"
                         });
+                    }
                 }
                 else if (protocol == "https")
                 {
-                    (new List<string> { "https://", "https://*." })
-                         .ForEach(proto => 
-                         {
-                             extractedUrls.Add(new MjsAccessWhitelistUrl()
-                             {
-                                 Url = proto + domainName + "/",
-                                 ApiAccess = "none"
-                             });
-                         });
+                    foreach (var proto in new string[] { "https://", "https://*." })
+                    {
+                        extractedUrls.Add(new MjsAccessWhitelistUrl()
+                        {
+                            Url = proto + domainName + "/",
+                            ApiAccess = "none"
+                        });
+                    }
+                }
+                else
+                {
+                    Logger.LogError(Errors.UnsupportedProtocolInAcur, protocol);
+                    throw new ConversionException("Unsupported protocol found in ACUR.");
                 }
 
                 extractedUrls.Add(new MjsAccessWhitelistUrl
@@ -186,7 +182,7 @@ namespace HwaCli
             }
 
             // Remove duplicates
-            extractedUrls = extractedUrls.GroupBy(u => u.Url.ToLower()).Select(u => u.First()).ToList();
+            extractedUrls = extractedUrls.Distinct(new MjsAccessWhitelistUrlComparer()).ToList();
 
             w3cManifest.MjsAccessWhitelist = extractedUrls;
 
@@ -203,13 +199,13 @@ namespace HwaCli
         {
             if (string.IsNullOrEmpty(manifest.StartUrl))
             {
-                this.logger.LogError(Errors.StartUrlNotSpecified);
+                Logger.LogError(Errors.StartUrlNotSpecified);
                 throw new ConversionException("Start url is not specifed in W3cManifest.");
             }
 
             if (manifest.Icons.Count < 1)
             {
-                this.logger.LogError(Errors.NoIconsFound);
+                Logger.LogError(Errors.NoIconsFound);
                 throw new ConversionException("Manifest must include at least one icon.");
             }
 
@@ -246,11 +242,13 @@ namespace HwaCli
             logoLarge.Src = logoLarge.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(logoLarge), GetWidthFromW3cImage(logoLarge), manifest.Icons).Src;
             splashScreen.Src = splashScreen.Src.NullIfEmpty() ?? this.FindNearestMatchAndResizeImage(GetHeightFromW3cImage(splashScreen), GetWidthFromW3cImage(splashScreen), manifest.Icons).Src;
 
-            this.logger.LogMessage("Established assets:");
-            this.logger.LogMessage("Store Logo: {0}", logoStore.Src);
-            this.logger.LogMessage("Small Logo: {0}", logoSmall.Src);
-            this.logger.LogMessage("Large Logo: {0}", logoLarge.Src);
-            this.logger.LogMessage("Splash Screen: {0}", splashScreen.Src);
+            Logger.LogMessage("Established assets:");
+            Logger.LogMessage("Store Logo: {0}", logoStore.Src);
+            Logger.LogMessage("Small Logo: {0}", logoSmall.Src);
+            Logger.LogMessage("Large Logo: {0}", logoLarge.Src);
+            Logger.LogMessage("Splash Screen: {0}", splashScreen.Src);
+
+            var assemblyInfo = new AssemblyInfoReader();
 
             // Update XML Template
             var appxManifest = XElement.Parse(string.Format(
@@ -303,9 +301,9 @@ namespace HwaCli
                 identityAttrs.IdentityName.ToString(),               // 0,  Package.Identity[Name]
                 identityAttrs.PublisherIdentity,                     // 1,  Package.Identity[Publisher]
                 Guid.NewGuid().ToString(),                           // 2,  Package.PhoneIdentity[PhoneProductId]
-                TOOL_NAME,                                           // 3,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
+                assemblyInfo.Product,                                // 3,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
                 DateTime.UtcNow.ToString(),                          // 4,  Package.Metadata.Item[Name="GenerationDate"][Value]
-                TOOL_VERSION,                                        // 5,  Package.Metadata.Item[Name="ToolVersion"][Value]
+                assemblyInfo.Version.ToString(),                     // 5,  Package.Metadata.Item[Name="ToolVersion"][Value]
                 manifest.ShortName,                                  // 6,  Package.Properties.DisplayName
                 identityAttrs.PublisherDisplayName,                  // 7,  Package.Properties.PublisherDisplayName
                 logoStore.Src,                                       // 8,  Package.Properties.Logo
@@ -318,8 +316,7 @@ namespace HwaCli
                 logoLarge.Src,                                       // 15, Package.VisualElements[Square150x150Logo]
                 logoSmall.Src,                                       // 16, Package.VisualElements[Square44x44Logo]
                 splashScreen.Src,                                    // 17, Package.VisualElements.SplashScreen[Image]
-                manifest.Orientation.NullIfEmpty() ?? "portrait"     // 18, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
-                ));
+                manifest.Orientation.NullIfEmpty() ?? "portrait"));  // 18, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
 
             // Add ACURs
             XNamespace xmlns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
@@ -377,7 +374,7 @@ namespace HwaCli
                                 new XAttribute("WindowsRuntimeAccess", apiAccess),
                                 new XAttribute("Match", accessUrl)));
                             
-                        this.logger.LogMessage("Access Rule added: [{0}] - {1}", apiAccess, accessUrl);
+                        Logger.LogMessage("Access Rule added: [{0}] - {1}", apiAccess, accessUrl);
                     }
                 }
             }
@@ -390,7 +387,7 @@ namespace HwaCli
                     new XAttribute("WindowsRuntimeAccess", baseApiAccess),
                     new XAttribute("Match", baseUrlPattern)));
 
-            this.logger.LogMessage("Access Rule added: [{0}] - {1}", baseApiAccess, baseUrlPattern);
+            Logger.LogMessage("Access Rule added: [{0}] - {1}", baseApiAccess, baseUrlPattern);
 
             return appxManifest;
         }
@@ -519,8 +516,14 @@ namespace HwaCli
         {
             if (path.Contains(".."))
             {
-                this.logger.LogError(Errors.RelativePathReferencesParentDirectory, path);
+                Logger.LogError(Errors.RelativePathReferencesParentDirectory, path);
                 throw new ConversionException("Error: " + Errors.RelativePathReferencesParentDirectory.Type);
+            }
+
+            if (Path.IsPathRooted(path))
+            {
+                Logger.LogError(Errors.RelativePathExpected, path);
+                throw new ConversionException("Error: " + Errors.RelativePathExpected.Type);
             }
         }
     }

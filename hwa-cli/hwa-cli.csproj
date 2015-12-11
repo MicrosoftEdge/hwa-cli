@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfoReader.cs" />
     <Compile Include="CliOptions.cs" />
     <Compile Include="Converter.cs" />
     <Compile Include="DomainParser\Domain.cs" />
@@ -73,7 +74,7 @@
     <Compile Include="IdentityAttributes.cs" />
     <Compile Include="Logging\ConversionException.cs" />
     <Compile Include="Logging\Error.cs" />
-    <Compile Include="Logging\ErrorOutputFile.cs" />
+    <Compile Include="Logging\LoggerOutputFile.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Manifest\ChromeApp.cs" />
     <Compile Include="Manifest\ChromeManifest.cs" />
