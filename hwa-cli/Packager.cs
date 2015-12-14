@@ -18,7 +18,7 @@ namespace HwaCli
             var startInfo = new ProcessStartInfo()
             {
                 FileName = makeAppxPath,
-                Arguments = string.Format("pack /o /d \"{0}\" /p {1}", rootPath, Path.Combine(rootPath, packageName)),
+                Arguments = string.Format("pack /o /d \"{0}\" /p \"{1}\"", rootPath, Path.Combine(rootPath, packageName)),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true

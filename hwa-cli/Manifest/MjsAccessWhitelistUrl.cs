@@ -38,7 +38,7 @@ namespace HwaCli.Manifest
 
         public int GetHashCode(MjsAccessWhitelistUrl obj)
         {
-            return obj.Url.GetHashCode();
+            return obj.Url.ToLowerInvariant().GetHashCode();
         }
     }
 }
