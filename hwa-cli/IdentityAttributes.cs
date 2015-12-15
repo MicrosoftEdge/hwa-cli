@@ -14,7 +14,7 @@ namespace HwaCli
 
     public class IdentityAttributes
     {
-        public Guid IdentityName { get; set; }
+        public string IdentityName { get; set; }
 
         public string PublisherIdentity { get; set; }
 

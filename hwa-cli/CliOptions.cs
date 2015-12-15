@@ -20,7 +20,7 @@ namespace HwaCli
 
         [Option('i', "identityName",
             Required = true,
-            HelpText = "Identity GUID")]
+            HelpText = "Unique Identifier for package")]
         public string IdentityName { get; set; }
 
         [Option('p', "publisherIdentity",

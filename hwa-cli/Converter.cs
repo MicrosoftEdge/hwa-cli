@@ -13,6 +13,7 @@ namespace HwaCli
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Security;
     using System.Text.RegularExpressions;
     using System.Xml.Linq;
 
@@ -293,25 +294,25 @@ namespace HwaCli
                     <DeviceCapability Name=""webcam"" />
                   </Capabilities>
                 </Package>",
-                identityAttrs.IdentityName.ToString(),               // 0,  Package.Identity[Name]
-                identityAttrs.PublisherIdentity,                     // 1,  Package.Identity[Publisher]
-                Guid.NewGuid().ToString(),                           // 2,  Package.PhoneIdentity[PhoneProductId]
-                assemblyInfo.Product,                                // 3,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
-                DateTime.UtcNow.ToString(),                          // 4,  Package.Metadata.Item[Name="GenerationDate"][Value]
-                assemblyInfo.Version.ToString(),                     // 5,  Package.Metadata.Item[Name="ToolVersion"][Value]
-                manifest.ShortName,                                  // 6,  Package.Properties.DisplayName
-                identityAttrs.PublisherDisplayName,                  // 7,  Package.Properties.PublisherDisplayName
-                logoStore.Src,                                       // 8,  Package.Properties.Logo
-                manifest.Language.NullIfEmpty() ?? "en-us",          // 9,  Package.Resources.Resource[Language]
-                SanitizeIdentityName(manifest.ShortName),            // 10, Package.Applications.Application[Id]
-                manifest.StartUrl,                                   // 11, Package.Applications.Application[StartPage]
-                manifest.ShortName,                                  // 12, Package.VisualElements[DisplayName]
-                manifest.Description.NullIfEmpty() ?? manifest.Name, // 13, Package.VisualElements[Description]
-                manifest.ThemeColor,                                 // 14, Package.VisualElements[BackgroundColor]
-                logoLarge.Src,                                       // 15, Package.VisualElements[Square150x150Logo]
-                logoSmall.Src,                                       // 16, Package.VisualElements[Square44x44Logo]
-                splashScreen.Src,                                    // 17, Package.VisualElements.SplashScreen[Image]
-                manifest.Orientation.NullIfEmpty() ?? "portrait"));  // 18, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
+                SecurityElement.Escape(identityAttrs.IdentityName),                          // 0,  Package.Identity[Name]
+                SecurityElement.Escape(identityAttrs.PublisherIdentity),                     // 1,  Package.Identity[Publisher]
+                SecurityElement.Escape(Guid.NewGuid().ToString()),                           // 2,  Package.PhoneIdentity[PhoneProductId]
+                SecurityElement.Escape(assemblyInfo.Product),                                // 3,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
+                SecurityElement.Escape(DateTime.UtcNow.ToString()),                          // 4,  Package.Metadata.Item[Name="GenerationDate"][Value]
+                SecurityElement.Escape(assemblyInfo.Version.ToString()),                     // 5,  Package.Metadata.Item[Name="ToolVersion"][Value]
+                SecurityElement.Escape(manifest.ShortName),                                  // 6,  Package.Properties.DisplayName
+                SecurityElement.Escape(identityAttrs.PublisherDisplayName),                  // 7,  Package.Properties.PublisherDisplayName
+                SecurityElement.Escape(logoStore.Src),                                       // 8,  Package.Properties.Logo
+                SecurityElement.Escape(manifest.Language.NullIfEmpty() ?? "en-us"),          // 9,  Package.Resources.Resource[Language]
+                SecurityElement.Escape(SanitizeIdentityName(manifest.ShortName)),            // 10, Package.Applications.Application[Id]
+                SecurityElement.Escape(manifest.StartUrl),                                   // 11, Package.Applications.Application[StartPage]
+                SecurityElement.Escape(manifest.ShortName),                                  // 12, Package.VisualElements[DisplayName]
+                SecurityElement.Escape(manifest.Description.NullIfEmpty() ?? manifest.Name), // 13, Package.VisualElements[Description]
+                SecurityElement.Escape(manifest.ThemeColor),                                 // 14, Package.VisualElements[BackgroundColor]
+                SecurityElement.Escape(logoLarge.Src),                                       // 15, Package.VisualElements[Square150x150Logo]
+                SecurityElement.Escape(logoSmall.Src),                                       // 16, Package.VisualElements[Square44x44Logo]
+                SecurityElement.Escape(splashScreen.Src),                                    // 17, Package.VisualElements.SplashScreen[Image]
+                SecurityElement.Escape(manifest.Orientation.NullIfEmpty() ?? "portrait")));  // 18, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
 
             // Add ACURs
             XNamespace xmlns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
