@@ -106,5 +106,14 @@ namespace HwaCli.Logging
                 Severity = ERROR,
                 Message = "Expected protocol to be in ['http', 'https', '*']. Instead protocol was '{0}'."
             };
+
+        public static readonly Error StoreVersionInvalid
+            = new Error()
+            {
+                Code = 10,
+                Type = "StoreVersionInvalid",
+                Severity = ERROR,
+                Message = "The 'store_version' property must be a valid version of the form '<MAJOR>.<MINOR>.<PATCH>.0' where MAJOR, MINOR, & PATCH are ints >= 0; received value: '{0}'."
+            };
     }
 }

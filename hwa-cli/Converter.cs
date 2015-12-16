@@ -206,6 +206,9 @@ namespace HwaCli
                 throw new ConversionException(Errors.NoIconsFound);
             }
 
+            string version = manifest.StoreVersion ?? "1.0.0.0";
+            this.ValidateStoreVersion(version);
+
             // Establish assets
             W3cImage logoStore = new W3cImage() { Sizes = "50x50" }, 
                      logoSmall = new W3cImage() { Sizes = "44x44" }, 
@@ -296,7 +299,7 @@ namespace HwaCli
                   </Capabilities>
                 </Package>",
                 SecurityElement.Escape(identityAttrs.IdentityName),                          // 0,  Package.Identity[Name]
-                SecurityElement.Escape(manifest.StoreVersion.NullIfEmpty() ?? "1.0.0.0"),    // 1,  Package.Identity[Version]
+                SecurityElement.Escape(version),                                             // 1,  Package.Identity[Version]
                 SecurityElement.Escape(identityAttrs.PublisherIdentity),                     // 2,  Package.Identity[Publisher]
                 SecurityElement.Escape(Guid.NewGuid().ToString()),                           // 3,  Package.PhoneIdentity[PhoneProductId]
                 SecurityElement.Escape(assemblyInfo.Product),                                // 4,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
@@ -520,6 +523,33 @@ namespace HwaCli
             if (Path.IsPathRooted(path))
             {
                 throw new ConversionException(Errors.RelativePathExpected, path);
+            }
+        }
+
+        private void ValidateStoreVersion(string version)
+        {
+            string[] parts = version.Split('.');
+
+            if (parts.Length != 4)
+            {
+                throw new ConversionException(Errors.StoreVersionInvalid, version);
+            }
+
+            for (var i = 0; i < parts.Length; i++)
+            {
+                var part = parts[i];
+                int val;
+
+                if (!int.TryParse(part, out val) || val < 0)
+                {
+                    throw new ConversionException(Errors.StoreVersionInvalid, version);
+                }
+
+                // The store requires the least significant value to be 0
+                if (i == parts.Length - 1 && val != 0)
+                {
+                    throw new ConversionException(Errors.StoreVersionInvalid, version);
+                }
             }
         }
     }
