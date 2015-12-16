@@ -6,6 +6,7 @@
 
 namespace HwaCli
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
 
@@ -28,9 +29,20 @@ namespace HwaCli
             {
                 using (var appxProc = Process.Start(startInfo))
                 {
-                    while (!appxProc.StandardOutput.EndOfStream)
+                    using (StreamReader reader = appxProc.StandardOutput)
                     {
-                        Logger.LogVerbose(appxProc.StandardOutput.ReadLine());
+                        while (!reader.EndOfStream)
+                        {
+                            var line = reader.ReadLine();
+                            if (line.StartsWith("MakeAppx : error:", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                Logger.LogError(Errors.AppxCreationFailed, line);
+                            }
+                            else
+                            {
+                                Logger.LogVerbose(line);
+                            }
+                        }
                     }
 
                     appxProc.WaitForExit();
