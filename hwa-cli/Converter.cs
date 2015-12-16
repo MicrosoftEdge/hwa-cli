@@ -91,6 +91,7 @@ namespace HwaCli
                 Orientation = manifest.Orientation.NullIfEmpty() ?? "portrait",
                 ThemeColor = manifest.ThemeColor.NullIfEmpty() ?? "aliceBlue",
                 BackgroundColor = manifest.BackgroundColor.NullIfEmpty() ?? "gray",
+                StoreVersion = manifest.StoreVersion,
                 Icons = new List<W3cImage>()
             };
 
@@ -250,26 +251,26 @@ namespace HwaCli
             var appxManifest = XElement.Parse(string.Format(
                 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes"" ?>
                 <Package xmlns=""http://schemas.microsoft.com/appx/manifest/foundation/windows10"" xmlns:mp=""http://schemas.microsoft.com/appx/2014/phone/manifest"" xmlns:uap=""http://schemas.microsoft.com/appx/manifest/uap/windows10"" xmlns:build=""http://schemas.microsoft.com/developer/appx/2015/build"" IgnorableNamespaces=""uap mp build"">
-                  <Identity Name=""{0}"" Version=""1.0.0.0"" Publisher=""{1}""/>
-                  <mp:PhoneIdentity PhoneProductId=""{2}"" PhonePublisherId=""00000000-0000-0000-0000-000000000000""/>
+                  <Identity Name=""{0}"" Version=""{1}"" Publisher=""{2}""/>
+                  <mp:PhoneIdentity PhoneProductId=""{3}"" PhonePublisherId=""00000000-0000-0000-0000-000000000000""/>
                   <build:Metadata>
-                    <build:Item Name=""GeneratedFrom"" Value=""{3}"" />
-                    <build:Item Name=""GenerationDate"" Value=""{4}"" />
-                    <build:Item Name=""ToolVersion"" Value=""{5}"" />
+                    <build:Item Name=""GeneratedFrom"" Value=""{4}"" />
+                    <build:Item Name=""GenerationDate"" Value=""{5}"" />
+                    <build:Item Name=""ToolVersion"" Value=""{6}"" />
                   </build:Metadata>
                   <Properties>
-                    <DisplayName>{6}</DisplayName>
-                    <PublisherDisplayName>{7}</PublisherDisplayName>
-                    <Logo>{8}</Logo>
+                    <DisplayName>{7}</DisplayName>
+                    <PublisherDisplayName>{8}</PublisherDisplayName>
+                    <Logo>{9}</Logo>
                   </Properties>
                   <Dependencies>
                     <TargetDeviceFamily Name=""Windows.Universal"" MinVersion=""10.0.10069.0"" MaxVersionTested=""10.0.10069.0""/>
                   </Dependencies>
                   <Resources>
-                    <Resource Language=""{9}""/>
+                    <Resource Language=""{10}""/>
                   </Resources>
                   <Applications>
-                    <Application Id=""{10}"" StartPage=""{11}"">
+                    <Application Id=""{11}"" StartPage=""{12}"">
                       <uap:ApplicationContentUriRules>
                         <!-- Default ACURs to allow for common auth methods -->
                         <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.facebook.com/"" />
@@ -278,10 +279,10 @@ namespace HwaCli
                         <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.youtube.com/"" />
                         <!-- End default ACURs -->
                       </uap:ApplicationContentUriRules>
-                      <uap:VisualElements DisplayName=""{12}"" Description=""{13}"" BackgroundColor=""{14}"" Square150x150Logo=""{15}"" Square44x44Logo=""{16}"">
-                        <uap:SplashScreen Image=""{17}""/>
+                      <uap:VisualElements DisplayName=""{13}"" Description=""{14}"" BackgroundColor=""{15}"" Square150x150Logo=""{16}"" Square44x44Logo=""{17}"">
+                        <uap:SplashScreen Image=""{18}""/>
                         <uap:InitialRotationPreference>
-                          <uap:Rotation Preference=""{18}""/>
+                          <uap:Rotation Preference=""{19}""/>
                         </uap:InitialRotationPreference>
                       </uap:VisualElements>
                     </Application>
@@ -295,24 +296,25 @@ namespace HwaCli
                   </Capabilities>
                 </Package>",
                 SecurityElement.Escape(identityAttrs.IdentityName),                          // 0,  Package.Identity[Name]
-                SecurityElement.Escape(identityAttrs.PublisherIdentity),                     // 1,  Package.Identity[Publisher]
-                SecurityElement.Escape(Guid.NewGuid().ToString()),                           // 2,  Package.PhoneIdentity[PhoneProductId]
-                SecurityElement.Escape(assemblyInfo.Product),                                // 3,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
-                SecurityElement.Escape(DateTime.UtcNow.ToString()),                          // 4,  Package.Metadata.Item[Name="GenerationDate"][Value]
-                SecurityElement.Escape(assemblyInfo.Version.ToString()),                     // 5,  Package.Metadata.Item[Name="ToolVersion"][Value]
-                SecurityElement.Escape(manifest.ShortName),                                  // 6,  Package.Properties.DisplayName
-                SecurityElement.Escape(identityAttrs.PublisherDisplayName),                  // 7,  Package.Properties.PublisherDisplayName
-                SecurityElement.Escape(logoStore.Src),                                       // 8,  Package.Properties.Logo
-                SecurityElement.Escape(manifest.Language.NullIfEmpty() ?? "en-us"),          // 9,  Package.Resources.Resource[Language]
-                SecurityElement.Escape(SanitizeIdentityName(manifest.ShortName)),            // 10, Package.Applications.Application[Id]
-                SecurityElement.Escape(manifest.StartUrl),                                   // 11, Package.Applications.Application[StartPage]
-                SecurityElement.Escape(manifest.ShortName),                                  // 12, Package.VisualElements[DisplayName]
-                SecurityElement.Escape(manifest.Description.NullIfEmpty() ?? manifest.Name), // 13, Package.VisualElements[Description]
-                SecurityElement.Escape(manifest.ThemeColor),                                 // 14, Package.VisualElements[BackgroundColor]
-                SecurityElement.Escape(logoLarge.Src),                                       // 15, Package.VisualElements[Square150x150Logo]
-                SecurityElement.Escape(logoSmall.Src),                                       // 16, Package.VisualElements[Square44x44Logo]
-                SecurityElement.Escape(splashScreen.Src),                                    // 17, Package.VisualElements.SplashScreen[Image]
-                SecurityElement.Escape(manifest.Orientation.NullIfEmpty() ?? "portrait")));  // 18, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
+                SecurityElement.Escape(manifest.StoreVersion.NullIfEmpty() ?? "1.0.0.0"),    // 1,  Package.Identity[Version]
+                SecurityElement.Escape(identityAttrs.PublisherIdentity),                     // 2,  Package.Identity[Publisher]
+                SecurityElement.Escape(Guid.NewGuid().ToString()),                           // 3,  Package.PhoneIdentity[PhoneProductId]
+                SecurityElement.Escape(assemblyInfo.Product),                                // 4,  Package.Metadata.Item[Name="GeneratedFrom"][Value]
+                SecurityElement.Escape(DateTime.UtcNow.ToString()),                          // 5,  Package.Metadata.Item[Name="GenerationDate"][Value]
+                SecurityElement.Escape(assemblyInfo.Version.ToString()),                     // 6,  Package.Metadata.Item[Name="ToolVersion"][Value]
+                SecurityElement.Escape(manifest.ShortName),                                  // 7,  Package.Properties.DisplayName
+                SecurityElement.Escape(identityAttrs.PublisherDisplayName),                  // 8,  Package.Properties.PublisherDisplayName
+                SecurityElement.Escape(logoStore.Src),                                       // 9,  Package.Properties.Logo
+                SecurityElement.Escape(manifest.Language.NullIfEmpty() ?? "en-us"),          // 10, Package.Resources.Resource[Language]
+                SecurityElement.Escape(SanitizeIdentityName(manifest.ShortName)),            // 11, Package.Applications.Application[Id]
+                SecurityElement.Escape(manifest.StartUrl),                                   // 12, Package.Applications.Application[StartPage]
+                SecurityElement.Escape(manifest.ShortName),                                  // 13, Package.VisualElements[DisplayName]
+                SecurityElement.Escape(manifest.Description.NullIfEmpty() ?? manifest.Name), // 14, Package.VisualElements[Description]
+                SecurityElement.Escape(manifest.ThemeColor),                                 // 15, Package.VisualElements[BackgroundColor]
+                SecurityElement.Escape(logoLarge.Src),                                       // 16, Package.VisualElements[Square150x150Logo]
+                SecurityElement.Escape(logoSmall.Src),                                       // 17, Package.VisualElements[Square44x44Logo]
+                SecurityElement.Escape(splashScreen.Src),                                    // 18, Package.VisualElements.SplashScreen[Image]
+                SecurityElement.Escape(manifest.Orientation.NullIfEmpty() ?? "portrait")));  // 19, Package.VisualElements.InitialRotationPreferences.Rotation[Preference]
 
             // Add ACURs
             XNamespace xmlns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";

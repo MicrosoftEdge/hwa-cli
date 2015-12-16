@@ -54,5 +54,8 @@ namespace HwaCli.Manifest
 
         [JsonProperty(PropertyName = "background_color")]
         public string BackgroundColor { get; set; }
+
+        [JsonProperty(PropertyName = "store_version")]
+        public string StoreVersion { get; set; }
     }
 }

@@ -50,5 +50,8 @@ namespace HwaCli.Manifest
 
         [JsonProperty(PropertyName = "mjs_access_whitelist")]
         public IList<MjsAccessWhitelistUrl> MjsAccessWhitelist { get; set; }
+
+        [JsonProperty(PropertyName = "store_version")]
+        public string StoreVersion { get; set; }
     }
 }
