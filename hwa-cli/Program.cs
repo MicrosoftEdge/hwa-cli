@@ -63,17 +63,24 @@ namespace HwaCli
                         Packager.PackageAsAppx(options.MakeAppxPath, rootPath.ToString());
                     }
 
+                    Logger.LogMessage("Errors: {0}", Logger.ErrorCount.ToString());
+
                     if (options.Wait)
                     {
                         Console.WriteLine("Press any key to exit...");
                         Console.ReadKey();
+                    }
+
+                    if (Logger.ErrorCount > 0)
+                    {
+                        Environment.Exit(-1);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.Write(ex.Message);
-                throw;
+                Environment.Exit(-1);
             }
         }
     }

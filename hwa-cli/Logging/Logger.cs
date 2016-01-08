@@ -17,6 +17,8 @@ namespace HwaCli.Logging
         private static FileLogger fileLogger;
 
         private static ConsoleLogger consoleLogger;
+
+        public static int ErrorCount { get; private set; }
         
         public static bool Verbose { get; set; }
 
@@ -28,6 +30,8 @@ namespace HwaCli.Logging
             }
 
             Logger.consoleLogger = new ConsoleLogger();
+
+            Logger.ErrorCount = 0;
         }
         private static void CheckLoggerInitialization()
         {
@@ -50,6 +54,8 @@ namespace HwaCli.Logging
             {
                 Logger.consoleLogger.LogError(error);
             }
+
+            Logger.ErrorCount++;
         }
 
         public static void LogError(Error error, params string[] parameters)
