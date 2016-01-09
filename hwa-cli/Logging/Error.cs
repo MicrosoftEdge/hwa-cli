@@ -151,5 +151,19 @@ namespace HwaCli.Logging
                 };
             }
         }
+
+        public static Error IconNotFound
+        {
+            get
+            {
+                return new Error()
+                {
+                    Code = 10,
+                    Type = "IconNotFound",
+                    Severity = ERROR,
+                    Message = "Manifest specifies icon that cannot be found at path: \"{0}\""
+                };
+            }
+        }
     }
 }

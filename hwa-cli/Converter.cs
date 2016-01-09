@@ -214,7 +214,7 @@ namespace HwaCli
 
             foreach (var icon in manifest.Icons)
             {
-                this.ValidatePath(icon.Src);
+                this.ValidateIcon(icon);
 
                 if (icon.Sizes == logoStore.Sizes)
                 {
@@ -510,16 +510,21 @@ namespace HwaCli
             return resImg;
         }
 
-        private void ValidatePath(string path)
+        private void ValidateIcon(W3cImage icon)
         {
-            if (path.Contains(".."))
+            if (icon.Src.Contains(".."))
             {
-                throw new ConversionException(Errors.RelativePathReferencesParentDirectory, path);
+                throw new ConversionException(Errors.RelativePathReferencesParentDirectory, icon.Src);
             }
 
-            if (Path.IsPathRooted(path))
+            if (Path.IsPathRooted(icon.Src))
             {
-                throw new ConversionException(Errors.RelativePathExpected, path);
+                throw new ConversionException(Errors.RelativePathExpected, icon.Src);
+            }
+
+            if (!File.Exists(Path.Combine(this.rootPath.ToString(), icon.Src)))
+            {
+                throw new ConversionException(Errors.IconNotFound, icon.Src);
             }
         }
     }
