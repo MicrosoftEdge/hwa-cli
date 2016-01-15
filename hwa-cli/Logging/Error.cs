@@ -63,7 +63,7 @@ namespace HwaCli.Logging
                     Code = 3,
                     Type = "AppxCreationFailed",
                     Severity = ERROR,
-                    Message = "Error while running MakeAppx.exe to create Appx package. Reason: {0}"
+                    Message = "Error while running MakeAppx.exe to create appx package. Reason: {0}"
                 };
             }
         }
@@ -77,7 +77,7 @@ namespace HwaCli.Logging
                     Code = 4,
                     Type = "LaunchUrlNotSpecified",
                     Severity = ERROR,
-                    Message = "A value was specified neither at app.launch.web_url nor app.launch.local_path in the JSON manifest."
+                    Message = "A value must be specified either at app.launch.web_url or app.launch.local_path in the JSON manifest."
                 };
             }
         }
@@ -91,7 +91,7 @@ namespace HwaCli.Logging
                     Code = 5,
                     Type = "DomainParsingFailed",
                     Severity = ERROR,
-                    Message = "Domain parsing failed for the following url: {0}"
+                    Message = "Domain parsing failed for the following URL: {0}"
                 };
             }
         }
@@ -133,7 +133,7 @@ namespace HwaCli.Logging
                     Code = 8,
                     Type = "RelativePathExpected",
                     Severity = ERROR,
-                    Message = "A relative path was expected, but instead found an abosolute path: {0}"
+                    Message = "Expected a relative path, but instead found an absolute path: {0}"
                 };
             }
         }
