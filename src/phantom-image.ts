@@ -6,8 +6,6 @@ var targetWidth = +system.args[2];
 var targetHeight = +system.args[3];
 var outputPath = system.args[4];
 
-// console.log(inputPath + " " + targetWidth + " " + targetHeight + " " + outputPath);
-
 var page = require('webpage').create();
 page.open('about:blank', function () {
     page.onCallback = function () {

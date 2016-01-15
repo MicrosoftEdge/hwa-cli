@@ -151,8 +151,6 @@ export function chromeToW3CManifest(chromeManifest: IChromeOSManifest, resolveVa
                 });
             });
         }
-            
-        extractedUrls.push({ url: url, apiAccess: "none" });
     }
     removeDupesInPlace(extractedUrls, function (a, b) {
         return a.url === b.url;
