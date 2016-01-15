@@ -172,12 +172,6 @@ namespace HwaCli
                 {
                     throw new ConversionException(Errors.UnsupportedProtocolInAcur, protocol);
                 }
-
-                extractedUrls.Add(new MjsAccessWhitelistUrl
-                {
-                    Url = url,
-                    ApiAccess = "none"
-                });
             }
 
             // Remove duplicates
