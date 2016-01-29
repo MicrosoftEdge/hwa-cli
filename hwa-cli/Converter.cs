@@ -266,12 +266,10 @@ namespace HwaCli
                   <Applications>
                     <Application Id=""{11}"" StartPage=""{12}"">
                       <uap:ApplicationContentUriRules>
-                        <!-- Default ACURs to allow for common auth methods -->
                         <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.facebook.com/"" />
                         <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.google.com/"" />
                         <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.live.com/"" />
                         <uap:Rule Type=""include"" WindowsRuntimeAccess=""none"" Match=""https://*.youtube.com/"" />
-                        <!-- End default ACURs -->
                       </uap:ApplicationContentUriRules>
                       <uap:VisualElements DisplayName=""{13}"" Description=""{14}"" BackgroundColor=""{15}"" Square150x150Logo=""{16}"" Square44x44Logo=""{17}"">
                         <uap:SplashScreen Image=""{18}""/>
