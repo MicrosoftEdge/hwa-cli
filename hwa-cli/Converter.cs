@@ -130,52 +130,10 @@ namespace HwaCli
                     });
             }
 
-            var extractedUrls = new List<MjsAccessWhitelistUrl>();
             var urls = new List<string>() { startUrl };
-
             urls = urls.Concat(manifest.App.Urls ?? new string[] { }).ToList();
 
-            foreach (var url in urls)
-            {
-                Domain domain = DomainNameParser.Parse(url);
-                var domainName = domain.DomainName;
-                var protocol = domain.Scheme;
-
-                if (string.IsNullOrEmpty(domainName))
-                {
-                    throw new ConversionException(Errors.DomainParsingFailed, url);
-                }
-
-                if (protocol == "http" || protocol == "*" || string.IsNullOrEmpty(protocol))
-                {
-                    foreach (var proto in new string[] { "http://", "http://*.", "https://", "https://*." })
-                    {
-                        extractedUrls.Add(new MjsAccessWhitelistUrl()
-                        {
-                            Url = proto + domainName + "/",
-                            ApiAccess = "none"
-                        });
-                    }
-                }
-                else if (protocol == "https")
-                {
-                    foreach (var proto in new string[] { "https://", "https://*." })
-                    {
-                        extractedUrls.Add(new MjsAccessWhitelistUrl()
-                        {
-                            Url = proto + domainName + "/",
-                            ApiAccess = "none"
-                        });
-                    }
-                }
-                else
-                {
-                    throw new ConversionException(Errors.UnsupportedProtocolInAcur, protocol);
-                }
-            }
-
-            // Remove duplicates
-            extractedUrls = extractedUrls.Distinct(new MjsAccessWhitelistUrlComparer()).ToList();
+            IList<MjsAccessWhitelistUrl> extractedUrls = Converter.CreateAcurList(urls);
 
             w3cManifest.MjsAccessWhitelist = extractedUrls;
 
@@ -208,23 +166,21 @@ namespace HwaCli
 
             foreach (var icon in manifest.Icons)
             {
-                this.ValidateIcon(icon);
-
                 if (icon.Sizes == logoStore.Sizes)
                 {
-                    logoStore.Src = SanitizeImgPath(icon.Src);
+                    logoStore.Src = this.SanitizeImgSrc(icon.Src);
                 }
                 else if (icon.Sizes == logoSmall.Sizes)
                 {
-                    logoSmall.Src = SanitizeImgPath(icon.Src);
+                    logoSmall.Src = this.SanitizeImgSrc(icon.Src);
                 }
                 else if (icon.Sizes == logoLarge.Sizes)
                 {
-                    logoLarge.Src = SanitizeImgPath(icon.Src);
+                    logoLarge.Src = this.SanitizeImgSrc(icon.Src);
                 }
                 else if (icon.Sizes == splashScreen.Sizes)
                 {
-                    splashScreen.Src = SanitizeImgPath(icon.Src);
+                    splashScreen.Src = this.SanitizeImgSrc(icon.Src);
                 }
             }
 
@@ -302,7 +258,9 @@ namespace HwaCli
                 SecurityElement.Escape(manifest.StartUrl),                                   // 12, Package.Applications.Application[StartPage]
                 SecurityElement.Escape(manifest.ShortName),                                  // 13, Package.VisualElements[DisplayName]
                 SecurityElement.Escape(manifest.Description.NullIfEmpty() ?? manifest.Name), // 14, Package.VisualElements[Description]
-                SecurityElement.Escape(manifest.ThemeColor),                                 // 15, Package.VisualElements[BackgroundColor]
+                SecurityElement.Escape(manifest.ThemeColor.NullIfEmpty()
+                                        ?? manifest.BackgroundColor.NullIfEmpty()
+                                        ?? "#fff"),                                          // 15, Package.VisualElements[BackgroundColor]
                 SecurityElement.Escape(logoLarge.Src),                                       // 16, Package.VisualElements[Square150x150Logo]
                 SecurityElement.Escape(logoSmall.Src),                                       // 17, Package.VisualElements[Square44x44Logo]
                 SecurityElement.Escape(splashScreen.Src),                                    // 18, Package.VisualElements.SplashScreen[Image]
@@ -337,6 +295,10 @@ namespace HwaCli
             {
                 baseUrlPattern = baseUrlPattern.Remove(baseUrlPattern.Length - 2, 2);
             }
+
+            manifest.MjsAccessWhitelist = manifest.MjsAccessWhitelist ?? new List<MjsAccessWhitelistUrl>();
+            manifest.MjsAccessWhitelist.Add(Converter.CreateAcurRecord(manifest.StartUrl));
+            manifest.MjsAccessWhitelist = Converter.DedupeAcurList(manifest.MjsAccessWhitelist);
 
             foreach (var urlObj in manifest.MjsAccessWhitelist)
             {
@@ -413,11 +375,30 @@ namespace HwaCli
             return sanitizedName;
         }
 
-        private static string SanitizeImgPath(string path)
+        private string SanitizeImgSrc(string src)
         {
+            if (src.Contains(".."))
+            {
+                throw new ConversionException(Errors.RelativePathReferencesParentDirectory, src);
+            }
+
+            if (Path.IsPathRooted(src))
+            {
+                throw new ConversionException(Errors.RelativePathExpected, src);
+            }
+
             // remove leading slash
-            string sanitizedPath = Regex.Replace(path, @"^[\/\\]", string.Empty);
-            return sanitizedPath;
+            src = Regex.Replace(src, @"^[\/\\]", string.Empty);
+
+            // convert to backslashes
+            src = src.Replace(@"/", @"\");
+
+            if (!File.Exists(Path.Combine(this.rootPath.ToString(), src)))
+            {
+                throw new ConversionException(Errors.IconNotFound, src);
+            }
+
+            return src;
         }
 
         private static int GetHeightFromW3cImage(W3cImage img)
@@ -428,6 +409,60 @@ namespace HwaCli
         private static int GetWidthFromW3cImage(W3cImage img)
         {
             return int.Parse(img.Sizes.Split('x')[0]);
+        }
+
+        private static IList<MjsAccessWhitelistUrl> CreateAcurList(IList<string> urls)
+        {
+            var extractedUrls = new List<MjsAccessWhitelistUrl>();
+
+            foreach (var url in urls)
+            {
+                Converter.CreateAcurRecord(url);
+            }
+
+            return extractedUrls;
+        }
+
+        private static MjsAccessWhitelistUrl CreateAcurRecord(string url)
+        {
+            Domain domain = DomainNameParser.Parse(url);
+            var domainName = domain.DomainName;
+            var protocol = domain.Scheme;
+
+            if (string.IsNullOrEmpty(domainName))
+            {
+                throw new ConversionException(Errors.DomainParsingFailed, url);
+            }
+
+            if (protocol == "http" || protocol == "*" || string.IsNullOrEmpty(protocol))
+            {
+                foreach (var proto in new string[] { "http://", "http://*.", "https://", "https://*." })
+                {
+                    return new MjsAccessWhitelistUrl()
+                    {
+                        Url = proto + domainName + "/",
+                        ApiAccess = "none"
+                    };
+                }
+            }
+            else if (protocol == "https")
+            {
+                foreach (var proto in new string[] { "https://", "https://*." })
+                {
+                    return new MjsAccessWhitelistUrl()
+                    {
+                        Url = proto + domainName + "/",
+                        ApiAccess = "none"
+                    };
+                }
+            }
+
+            throw new ConversionException(Errors.UnsupportedProtocolInAcur, protocol);
+        }
+
+        private static IList<MjsAccessWhitelistUrl> DedupeAcurList(IList<MjsAccessWhitelistUrl> records)
+        {
+            return records.Distinct(new MjsAccessWhitelistUrlComparer()).ToList();
         }
 
         private W3cImage FindNearestMatchAndResizeImage(int h, int w, IList<W3cImage> assets)
@@ -500,24 +535,6 @@ namespace HwaCli
             };
 
             return resImg;
-        }
-
-        private void ValidateIcon(W3cImage icon)
-        {
-            if (icon.Src.Contains(".."))
-            {
-                throw new ConversionException(Errors.RelativePathReferencesParentDirectory, icon.Src);
-            }
-
-            if (Path.IsPathRooted(icon.Src))
-            {
-                throw new ConversionException(Errors.RelativePathExpected, icon.Src);
-            }
-
-            if (!File.Exists(Path.Combine(this.rootPath.ToString(), icon.Src)))
-            {
-                throw new ConversionException(Errors.IconNotFound, icon.Src);
-            }
         }
     }
 }
