@@ -16,6 +16,7 @@ var validIconFormats = [
 export interface IAppIdentity {
     appDisplayName?: string;
     identityName: string;
+    appVersion: string;
     publisherIdentity: string;
     publisherDisplayName: string;
 }
@@ -210,7 +211,7 @@ export function w3CToAppxManifest(w3cManifest: IW3CManifest, appxManifestTemplat
     // Update properties
     var appxManifest = appxManifestTemplate
         .replace(/{IdentityName}/g, appIdentity.identityName)
-        .replace(/{Version}/g, "1.0.0.0")
+        .replace(/{Version}/g, appIdentity.appVersion)
         .replace(/{PublisherIdentity}/g, appIdentity.publisherIdentity)
         .replace(/{PhoneProductId}/g, guid)
         .replace(/{AppDisplayName}/g, encodeXML(appIdentity.appDisplayName || w3cManifest.short_name))
