@@ -135,6 +135,10 @@ export function convert(argv: any, src: string, dest: string) {
                 message: "Identity Name:"
             }, {
                 type: "input",
+                name: "appVersion",
+                message: "App Version (default: 1.0.0.0):"
+            }, {
+                type: "input",
                 name: "publisherIdentity",
                 message: "Publisher Identity:"
             }, {
@@ -170,6 +174,7 @@ export function convert(argv: any, src: string, dest: string) {
                     {
                         // appDisplayName: answers.useCurrentName ? w3cManifest.short_name : answers.appDisplayName,
                         identityName: answers.identityName,
+                        appVersion: answers.appVersion || "1.0.0.0",
                         // identityName: answers.identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
                         publisherDisplayName: answers.publisherDisplayName,
                         // publisherDisplayName: answers.publisherDisplayName || "AUTHOR_NAME",
