@@ -136,7 +136,7 @@ export function convert(argv: any, src: string, dest: string) {
             }, {
                 type: "input",
                 name: "appVersion",
-                message: "App Version (default: 1.0.0.0):"
+                message: "App Version (default: \"1.0.0.0\" req'd format: \"<major>.<minor>.<build>.0\"):"
             }, {
                 type: "input",
                 name: "publisherIdentity",
@@ -172,9 +172,9 @@ export function convert(argv: any, src: string, dest: string) {
                     w3cManifest,
                     fs.readFileSync(p.join(__dirname, "../../templates/w3c-AppxManifest-template.xml"), "utf8"),
                     {
-                        // appDisplayName: answers.useCurrentName ? w3cManifest.short_name : answers.appDisplayName,
-                        identityName: answers.identityName,
+                        appDisplayName: answers.useCurrentName ? w3cManifest.short_name : answers.appDisplayName,
                         appVersion: answers.appVersion || "1.0.0.0",
+                        identityName: answers.identityName,
                         // identityName: answers.identityName || "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
                         publisherDisplayName: answers.publisherDisplayName,
                         // publisherDisplayName: answers.publisherDisplayName || "AUTHOR_NAME",
