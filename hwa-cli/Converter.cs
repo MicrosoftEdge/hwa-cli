@@ -381,16 +381,16 @@ namespace HwaCli
                 throw new ConversionException(Errors.RelativePathReferencesParentDirectory, src);
             }
 
-            if (Path.IsPathRooted(src))
-            {
-                throw new ConversionException(Errors.RelativePathExpected, src);
-            }
-
             // remove leading slash
             src = Regex.Replace(src, @"^[\/\\]", string.Empty);
 
             // convert to backslashes
             src = src.Replace(@"/", @"\");
+
+            if (Path.IsPathRooted(src))
+            {
+                throw new ConversionException(Errors.RelativePathExpected, src);
+            }
 
             if (!File.Exists(Path.Combine(this.rootPath.ToString(), src)))
             {
