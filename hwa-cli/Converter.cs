@@ -67,17 +67,16 @@ namespace HwaCli
         /// <returns><seealso cref="XElement"/></returns>
         private XElement Convert(ChromeManifest manifest, IdentityAttributes identityAttrs)
         {
-            string startUrl = manifest.App.Launch.WebUrl;
-
-            if (string.IsNullOrEmpty(startUrl) && !string.IsNullOrEmpty(manifest.App.Launch.LocalPath))
-            {
-                startUrl = "ms-appx-web:///" + manifest.App.Launch.LocalPath;
-            }
-            
-            if (string.IsNullOrEmpty(startUrl))
+            if (manifest.App.Launch == null || 
+                (string.IsNullOrEmpty(manifest.App.Launch.WebUrl) && string.IsNullOrEmpty(manifest.App.Launch.LocalPath)))
             {
                 throw new ConversionException(Errors.LaunchUrlNotSpecified);
             }
+
+            string startUrl = 
+                !string.IsNullOrEmpty(manifest.App.Launch.WebUrl)
+                ? manifest.App.Launch.WebUrl
+                : "ms-appx-web:///" + manifest.App.Launch.LocalPath;
 
             var w3cManifest = new W3cManifest()
             {
