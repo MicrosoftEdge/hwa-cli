@@ -105,6 +105,36 @@ namespace HwaCli.test
         }
 
         [TestMethod]
+        public void CanParseUnicodeDomain()
+        {
+            Domain domain;
+
+            domain = DomainNameParser.Parse("http://例え.テスト/");
+            Assert.AreEqual("http", domain.Scheme);
+            Assert.AreEqual("例え.テスト", domain.DomainName);
+            Assert.AreEqual("例え.テスト", domain.HostName);
+            Assert.AreEqual("/", domain.PathName);
+
+            domain = DomainNameParser.Parse("チェインクロニクル.gamerch.com/");
+            Assert.AreEqual("*", domain.Scheme);
+            Assert.AreEqual("gamerch.com", domain.DomainName);
+            Assert.AreEqual("チェインクロニクル.gamerch.com", domain.HostName);
+            Assert.AreEqual("/", domain.PathName);
+
+            domain = DomainNameParser.Parse("チェインクロニクル.例え.テスト/");
+            Assert.AreEqual("*", domain.Scheme);
+            Assert.AreEqual("例え.テスト", domain.DomainName);
+            Assert.AreEqual("チェインクロニクル.例え.テスト", domain.HostName);
+            Assert.AreEqual("/", domain.PathName);
+
+            domain = DomainNameParser.Parse("xn--eckfza0gxcvmna6c.xn--r8jz45g.xn--zckzah/");
+            Assert.AreEqual("*", domain.Scheme);
+            Assert.AreEqual("xn--r8jz45g.xn--zckzah", domain.DomainName);
+            Assert.AreEqual("xn--eckfza0gxcvmna6c.xn--r8jz45g.xn--zckzah", domain.HostName);
+            Assert.AreEqual("/", domain.PathName);
+        }
+
+        [TestMethod]
         public void CanUseCreateURIMethod()
         {
             string uri = "http://www.domain.com/";
